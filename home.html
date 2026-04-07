@@ -290,30 +290,43 @@ body{
 }
 .countdown{
     font-size:13px;
-    color:#23465B; 
     font-weight:500;
     margin-top:5px;
 }
-.live-btn{
-    background:#23465B  !important;
-    animation:pulse 1.5s infinite;
-}
-@keyframes pulse {
+
+/* ORANGE COLOR STYLES FOR LIVE ITEMS */
+@keyframes orangePulse {
     0% {
         transform: scale(1);
-        box-shadow: 0 0 0 0 rgba(87, 73, 100, 0.4);
+        box-shadow: 0 0 0 0 rgba(230, 126, 34, 0.4);
     }
     70% {
         transform: scale(1.05);
-        box-shadow: 0 0 0 10px rgba(87, 73, 100, 0);
+        box-shadow: 0 0 0 10px rgba(230, 126, 34, 0);
     }
     100% {
         transform: scale(1);
-        box-shadow: 0 0 0 0 rgba(87, 73, 100, 0);
+        box-shadow: 0 0 0 0 rgba(230, 126, 34, 0);
     }
 }
-.live-badge{
-    animation: pulse 1.5s infinite;
+
+.live-btn {
+    animation: orangePulse 1.5s infinite !important;
+    background: #e67e22 !important;
+}
+
+.live-btn:hover {
+    background: #d35400 !important;
+}
+
+.live-badge {
+    animation: orangePulse 1.5s infinite !important;
+    background: #e67e22 !important;
+}
+
+.countdown-live {
+    color: #e67e22 !important;
+    font-weight: 600;
 }
 </style>
 </head>
@@ -324,11 +337,11 @@ body{
     </div>
     <div class="nav-links">
             <a href="home.html">Home</a>
-            <a href="practice.html" class="active">Practice</a>
+            <a href="practice.html">Practice</a>
             <a href="mockinterview.html">Mock Interview</a>
             <a href="dashboard.html">Dashboard</a>
             <a href="profile.html">Profile</a>
-            <a href="login.html">Logout</a>
+            <a href="#" onclick="logout()">Logout</a>
         </div>
 </div>
 <div class="container">
@@ -365,51 +378,47 @@ body{
         <div class="steps">
             <h3>How It Works</h3>
             <div class="step-container">
-    <div class="step">
-        <div class="circle">1</div>
-        <p>Register Account</p>
-    </div>
-    <div class="step">
-        <div class="circle">2</div>
-        <p>Choose Interview Type</p>
-    </div>
-    <div class="step">
-        <div class="circle">3</div>
-        <p>Practice Questions</p>
-    </div>
-    <div class="step">
-        <div class="circle">4</div>
-        <p>Get Feedback & Improve</p>
-    </div>
-</div>
+                <div class="step">
+                    <div class="circle">1</div>
+                    <p>Register Account</p>
+                </div>
+                <div class="step">
+                    <div class="circle">2</div>
+                    <p>Choose Interview Type</p>
+                </div>
+                <div class="step">
+                    <div class="circle">3</div>
+                    <p>Practice Questions</p>
+                </div>
+                <div class="step">
+                    <div class="circle">4</div>
+                    <p>Get Feedback & Improve</p>
+                </div>
+            </div>
         </div>
     </div>
     <div class="right">
         <div class="right-box">
             <h3>Upcoming Interviews</h3>
-           <div class="interview-card" 
-     data-time="2026-03-20T14:00:00"
-     data-link="amazon.html">
-    <span class="badge">Upcoming</span>
-    <p><strong>Amazon</strong></p>
-    <p>Software Developer</p>
-    <p class="time">27 March, 10:00 AM</p>
-    <p class="countdown"></p>
-    <button class="action-btn">View</button>
-</div>
+            <div class="interview-card" data-time="2026-03-27T10:00:00" data-link="amazon.html">
+                <span class="badge">Upcoming</span>
+                <p><strong>Amazon</strong></p>
+                <p>Software Developer</p>
+                <p class="time">20 April, 10:00 AM</p>
+                <p class="countdown"></p>
+                <button class="action-btn">View</button>
+            </div>
 
-<div class="interview-card" data-time="2026-03-20T14:00:00">
-    <span class="badge">Upcoming</span>
-    <p><strong>TCS</strong></p>
-    <p>System Engineer</p>
-    <p class="time">30 March, 2:00 PM</p>
-    <p class="countdown"></p>
-    <button class="action-btn">View</button>
-</div>
-
+            <div class="interview-card" data-time="2026-03-30T14:00:00" data-link="tcs.html">
+                <span class="badge">Upcoming</span>
+                <p><strong>TCS</strong></p>
+                <p>System Engineer</p>
+                <p class="time">30 April, 2:00 PM</p>
+                <p class="countdown"></p>
+                <button class="action-btn">View</button>
+            </div>
         </div>
     </div>
-
 </div>
 
 <div class="footer">
@@ -421,51 +430,142 @@ body{
         <a href="#">Terms</a>
     </div>
 </div>
+
 <script>
-    if(diff > 0){
-    btn.disabled = true;
-    btn.style.opacity = "0.6";
-    btn.style.cursor = "not-allowed";
-} else {
-    btn.disabled = false;
+// Logout function
+function logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = 'login.html';
 }
-    btn.onclick = () => {
-    const link = card.getAttribute("data-link");
-    window.location.href = link;
-};
-function updateCountdowns(){
+
+// Countdown timer function with ORANGE color for live
+function updateCountdowns() {
     const cards = document.querySelectorAll(".interview-card");
 
     cards.forEach(card => {
-        const time = new Date(card.getAttribute("data-time"));
+        const timeAttr = card.getAttribute("data-time");
+        if (!timeAttr) return;
+        
+        const time = new Date(timeAttr);
         const now = new Date();
-
         const diff = time - now;
-
+        
         const countdownEl = card.querySelector(".countdown");
         const btn = card.querySelector(".action-btn");
         const badge = card.querySelector(".badge");
 
-        if(diff > 0){
+        if (diff > 0) {
             const hours = Math.floor(diff / (1000 * 60 * 60));
             const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-
             countdownEl.innerText = `Starts in ${hours}h ${minutes}m`;
+            countdownEl.style.color = "#23465B";
+            countdownEl.classList.remove("countdown-live");
+            
+            if (btn) {
+                btn.disabled = false;
+                btn.innerText = "View";
+                btn.style.background = "#23465B";
+                btn.classList.remove("live-btn");
+            }
+            if (badge) {
+                badge.innerText = "Upcoming";
+                badge.style.background = "#56738A";
+                badge.classList.remove("live-badge");
+            }
         } else {
-    countdownEl.innerText = "Live Now 🚀";
-
-    badge.innerText = "Live";
-    badge.style.background = "#574964";
-    badge.style.color = "#fff";
-
-    badge.classList.add("live-badge");
-
-    btn.innerText = "Join";
-    btn.style.background = "#574964";
-}
+            countdownEl.innerText = "Live Now 🚀";
+            countdownEl.style.color = "#e67e22";
+            countdownEl.classList.add("countdown-live");
+            
+            if (badge) {
+                badge.innerText = "Live";
+                badge.style.background = "#e67e22";
+                badge.classList.add("live-badge");
+            }
+            if (btn) {
+                btn.innerText = "Join Now";
+                btn.style.background = "#e67e22";
+                btn.classList.add("live-btn");
+                btn.disabled = false;
+            }
+        }
     });
 }
 
+// Navigation handlers
+document.addEventListener('DOMContentLoaded', function() {
+    // Start Practicing button
+    const startBtn = document.querySelector('.hero .btn.primary');
+    if (startBtn) {
+        startBtn.addEventListener('click', function() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('Please login first');
+                window.location.href = 'login.html';
+            } else {
+                window.location.href = 'practice.html';
+            }
+        });
+    }
+    
+    // Mock Interview button
+    const mockBtn = document.querySelector('.hero .btn.secondary');
+    if (mockBtn) {
+        mockBtn.addEventListener('click', function() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('Please login first');
+                window.location.href = 'login.html';
+            } else {
+                window.location.href = 'mockinterview.html';
+            }
+        });
+    }
+    
+    // Interview type selection
+    const interviewTypes = document.querySelectorAll('.types span');
+    interviewTypes.forEach(type => {
+        type.addEventListener('click', function() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('Please login first');
+                window.location.href = 'login.html';
+                return;
+            }
+            const selectedType = this.innerText;
+            localStorage.setItem('selectedInterviewType', selectedType);
+            window.location.href = 'practice.html';
+        });
+    });
+    
+    // Interview card buttons
+    const actionBtns = document.querySelectorAll('.interview-card .action-btn');
+    actionBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('Please login first');
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            const card = this.closest('.interview-card');
+            const link = card.getAttribute('data-link');
+            const isLive = card.querySelector('.badge')?.innerText === 'Live';
+            
+            if (isLive) {
+                window.location.href = 'mockinterview.html';
+            } else if (link) {
+                window.location.href = link;
+            } else {
+                alert('Interview details will be available soon!');
+            }
+        });
+    });
+});
+
+// Start countdown timer
 setInterval(updateCountdowns, 1000);
 updateCountdowns();
 </script>

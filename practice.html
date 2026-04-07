@@ -3,600 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Practice Mode - Remote Interview Portal</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>Practice - Interview Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-        }
-
-        body {
             font-family: 'Poppins', sans-serif;
-            background: #F5F7FA;
-            min-height: 100vh;
         }
-
-        /* Navigation Bar */
+        body {
+            background: #F5F7FA;
+        }
         .navbar {
             background: #23465B;
+            color: white;
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 20px 50px;
-            flex-wrap: wrap;
         }
-
         .logo img {
             height: 40px;
             object-fit: contain;
         }
-
         .nav-links {
             display: flex;
             gap: 35px;
-            flex-wrap: wrap;
         }
-
         .nav-links a {
             color: white;
             text-decoration: none;
             font-size: 16px;
             transition: 0.3s;
         }
-
         .nav-links a:hover {
             color: #C6C6C6;
         }
-        
-        .nav-links a.active {
-            color: #C6C6C6;
-            font-weight: 600;
-        }
-
-        /* Main Container */
         .container {
             max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
+            margin: 40px auto;
+            padding: 0 20px;
         }
-
-        /* Category Selection Section */
-        .category-section {
-            animation: fadeIn 0.5s ease;
-        }
-
-        .section-title {
-            text-align: center;
-            color: #23465B;
-            margin-bottom: 3rem;
-        }
-
-        .section-title h1 {
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .section-title p {
-            font-size: 1rem;
-            opacity: 0.9;
-        }
-
-        .categories-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2rem;
-        }
-
-        .category-card {
+        .filters {
             background: white;
-            border-radius: 15px;
-            padding: 2rem;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        }
-
-        .category-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
-        }
-
-        .category-icon {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .category-card h3 {
-            font-size: 1.3rem;
-            color: #23465B;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-
-        .category-card p {
-            color: #666;
-            font-size: 0.9rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .start-btn {
-            background: #23465B;
-            color: white;
-            border: none;
-            padding: 0.7rem 1.5rem;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        .start-btn:hover {
-            background: #2F5673;
-            transform: scale(1.05);
-        }
-
-        /* Practice Area */
-        .practice-area {
-            display: none;
-            animation: fadeIn 0.5s ease;
-        }
-
-        .practice-header {
-            background: white;
-            border-radius: 15px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            gap: 15px;
             flex-wrap: wrap;
-            gap: 1rem;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
-
-        .interview-info h3 {
-            color: #333;
-            font-size: 1.1rem;
-        }
-
-        .interview-info .category {
-            color: #23465B;
-            font-weight: 600;
-            margin-top: 0.25rem;
-        }
-
-        .progress-stats {
-            display: flex;
-            gap: 2rem;
-        }
-
-        .stat {
-            text-align: center;
-        }
-
-        .stat .value {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #23465B;
-        }
-
-        .stat .label {
-            font-size: 0.8rem;
-            color: #666;
-        }
-
-        /* Main Content Layout */
-        .practice-content {
-            display: grid;
-            grid-template-columns: 300px 1fr;
-            gap: 2rem;
-        }
-
-        /* Sidebar */
-        .sidebar {
+        .filter-btn {
+            padding: 10px 20px;
+            border: 2px solid #23465B;
             background: white;
-            border-radius: 15px;
-            padding: 1.5rem;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            height: fit-content;
-            position: sticky;
-            top: 90px;
-        }
-
-        .sidebar h4 {
-            color: #333;
-            margin-bottom: 1rem;
-            font-size: 1.1rem;
-        }
-
-        .questions-list {
-            max-height: 400px;
-            overflow-y: auto;
-        }
-
-        .question-item {
-            padding: 0.8rem;
-            margin-bottom: 0.5rem;
-            background: #f8f9fa;
-            border-radius: 10px;
+            color: #23465B;
+            border-radius: 25px;
             cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
+            transition: 0.3s;
         }
-
-        .question-item:hover {
-            background: #e9ecef;
-        }
-
-        .question-item.active {
+        .filter-btn.active {
             background: #23465B;
             color: white;
         }
-
-        .question-item.completed {
-            opacity: 0.6;
-        }
-
-        .q-num {
-            width: 28px;
-            height: 28px;
-            background: #e9ecef;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-
-        .question-item.active .q-num {
-            background: white;
-            color: #23465B;
-        }
-
-        .q-text {
-            flex: 1;
-            font-size: 0.85rem;
-        }
-
-        .tips-card {
-            background: #fef5e7;
-            padding: 1rem;
-            border-radius: 10px;
-            margin-top: 1.5rem;
-            border-left: 3px solid #f39c12;
-        }
-
-        .tips-card h4 {
-            color: #e67e22;
-            margin-bottom: 0.5rem;
-            font-size: 0.9rem;
-        }
-
-        .tips-card ul {
-            list-style: none;
-            padding-left: 0;
-        }
-
-        .tips-card li {
-            padding: 0.25rem 0;
-            font-size: 0.8rem;
-            color: #666;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        /* Question Area */
-        .question-area {
-            background: white;
-            border-radius: 15px;
-            padding: 2rem;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .timer-box {
+        .filter-btn:hover {
             background: #23465B;
             color: white;
-            padding: 0.8rem 1.5rem;
-            border-radius: 50px;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 1.5rem;
         }
-
-        .timer-box i {
-            font-size: 1.2rem;
+        .questions-container {
+            display: grid;
+            gap: 20px;
         }
-
-        .timer {
-            font-size: 1.3rem;
-            font-weight: 700;
-            font-family: monospace;
-        }
-
-        .question-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .q-number {
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        .difficulty {
-            padding: 0.25rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-
-        .difficulty.easy {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .difficulty.medium {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        .difficulty.hard {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .question-text {
-            font-size: 1.2rem;
-            color: #333;
-            line-height: 1.6;
-            margin-bottom: 2rem;
-            padding: 1rem;
-            background: #f8f9fa;
+        .question-card {
+            background: white;
+            padding: 25px;
             border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             border-left: 4px solid #23465B;
         }
-
-        .answer-section label {
-            display: block;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 0.5rem;
+        .question-text {
+            font-size: 18px;
+            font-weight: 500;
+            color: #23465B;
+            margin-bottom: 15px;
         }
-
-        .answer-input {
-            width: 100%;
-            padding: 1rem;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-family: 'Poppins', sans-serif;
-            font-size: 0.95rem;
-            resize: vertical;
-            transition: all 0.3s;
-        }
-
-        .answer-input:focus {
-            outline: none;
-            border-color: #23465B;
-        }
-
-        .action-buttons {
+        .question-meta {
             display: flex;
-            gap: 1rem;
-            margin-top: 1.5rem;
+            gap: 10px;
+            margin-bottom: 15px;
         }
-
-        .btn-primary, .btn-secondary {
-            padding: 0.8rem 1.8rem;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        .btn-primary {
-            background: #23465B;
-            color: white;
-        }
-
-        .btn-primary:hover:not(:disabled) {
-            background: #2F5673;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-secondary {
-            background: #e0e0e0;
-            color: #666;
-        }
-
-        .btn-secondary:hover:not(:disabled) {
-            background: #d0d0d0;
-        }
-
-        .btn-primary:disabled, .btn-secondary:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        /* Feedback Section */
-        .feedback-section {
-            margin-top: 2rem;
-            padding: 1.5rem;
-            background: #f8f9fa;
-            border-radius: 10px;
-            border-left: 4px solid #28a745;
-            display: none;
-        }
-
-        .feedback-section h3 {
-            color: #333;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .score {
-            display: inline-block;
-            padding: 0.3rem 1rem;
-            background: #28a745;
-            color: white;
+        .badge {
+            padding: 4px 12px;
             border-radius: 20px;
-            font-weight: 600;
-            margin-bottom: 1rem;
-        }
-
-        .feedback-text {
-            color: #555;
-            line-height: 1.6;
-            white-space: pre-line;
-        }
-
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 2000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            background: white;
-            border-radius: 15px;
-            max-width: 500px;
-            width: 90%;
-            text-align: center;
-            animation: slideIn 0.3s ease;
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateY(-50px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        .modal-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid #e0e0e0;
-        }
-
-        .modal-body {
-            padding: 2rem;
-        }
-
-        .success-icon {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-        }
-
-        .modal-stats {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            margin: 1.5rem 0;
-        }
-
-        .modal-stat {
-            text-align: center;
-        }
-
-        .modal-stat .value {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: #23465B;
-            display: block;
-        }
-
-        .modal-stat .label {
-            font-size: 0.8rem;
-            color: #666;
-        }
-
-        .modal-buttons {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-        }
-
-        /* Toast */
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: white;
-            padding: 0.8rem 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            z-index: 2000;
-            animation: slideRight 0.3s ease;
-        }
-
-        @keyframes slideRight {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        .toast.success {
-            border-left: 4px solid #28a745;
-        }
-
-        .toast.error {
-            border-left: 4px solid #dc3545;
-        }
-
-        /* Back Button */
-        .back-btn {
-            background: none;
-            border: none;
-            color: #23465B;
-            cursor: pointer;
-            font-size: 1rem;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+            font-size: 12px;
             font-weight: 500;
         }
-
-        .back-btn:hover {
-            color: #2F5673;
+        .badge.technical { background: #e3f2fd; color: #1976d2; }
+        .badge.behavioral { background: #f3e5f5; color: #7b1fa2; }
+        .badge.hr { background: #e8f5e9; color: #388e3c; }
+        .badge.system-design { background: #fff3e0; color: #f57c00; }
+        .difficulty {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
         }
-
-        /* Footer */
+        .difficulty.beginner { background: #c8e6c9; color: #2e7d32; }
+        .difficulty.intermediate { background: #fff9c4; color: #f57f17; }
+        .difficulty.advanced { background: #ffcdd2; color: #c62828; }
+        .answer-section {
+            margin-top: 15px;
+        }
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            margin-top: 10px;
+        }
+        .submit-btn {
+            margin-top: 10px;
+            padding: 8px 20px;
+            background: #23465B;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .feedback {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f0f9ff;
+            border-radius: 8px;
+            font-size: 14px;
+            display: none;
+        }
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 18px;
+            color: #23465B;
+        }
         .footer {
             margin-top: 30px;
             background: #2F5673;
@@ -604,57 +153,18 @@
             padding: 25px;
             text-align: center;
         }
-
         .footer a {
             color: #C6C6C6;
             margin: 0 10px;
             text-decoration: none;
             font-size: 14px;
         }
-
-        /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .navbar {
-                flex-direction: column;
-                gap: 1rem;
-                padding: 15px;
-            }
-            
-            .nav-links {
-                justify-content: center;
-                gap: 20px;
-            }
-            
-            .practice-content {
-                grid-template-columns: 1fr;
-            }
-            
-            .sidebar {
-                position: static;
-            }
-            
-            .practice-header {
-                flex-direction: column;
-                text-align: center;
-            }
-            
-            .progress-stats {
-                justify-content: center;
-            }
-        }
     </style>
 </head>
 <body>
-    <!-- Navigation Bar -->
     <div class="navbar">
         <div class="logo">
-            <img src="logo.png" alt="Logo">
+            <img src="logo.png" alt="logo">
         </div>
         <div class="nav-links">
             <a href="home.html">Home</a>
@@ -662,138 +172,23 @@
             <a href="mockinterview.html">Mock Interview</a>
             <a href="dashboard.html">Dashboard</a>
             <a href="profile.html">Profile</a>
-            <a href="login.html">Logout</a>
+            <a href="#" onclick="logout()">Logout</a>
         </div>
     </div>
 
     <div class="container">
-        <!-- Category Selection -->
-        <div id="categorySection" class="category-section">
-            <div class="section-title">
-                <h1><i class="fas fa-microphone-alt"></i> Practice Interviews</h1>
-                <p>Choose a category to start practicing</p>
-            </div>
-            <div class="categories-grid" id="categoriesGrid">
-                <!-- Categories loaded here -->
-            </div>
+        <h1 style="color: #23465B; margin-bottom: 20px;">Practice Interview Questions</h1>
+        
+        <div class="filters">
+            <button class="filter-btn active" data-type="all">All</button>
+            <button class="filter-btn" data-type="technical">Technical</button>
+            <button class="filter-btn" data-type="behavioral">Behavioral</button>
+            <button class="filter-btn" data-type="hr">HR</button>
+            <button class="filter-btn" data-type="system-design">System Design</button>
         </div>
 
-        <!-- Practice Area -->
-        <div id="practiceArea" class="practice-area">
-            <button class="back-btn" id="backToCategories">
-                <i class="fas fa-arrow-left"></i> Back to Categories
-            </button>
-
-            <div class="practice-header">
-                <div class="interview-info">
-                    <h3>Current Interview</h3>
-                    <div class="category" id="currentCategory"></div>
-                </div>
-                <div class="progress-stats">
-                    <div class="stat">
-                        <div class="value" id="totalQuestions">0</div>
-                        <div class="label">Questions</div>
-                    </div>
-                    <div class="stat">
-                        <div class="value" id="totalTime">0</div>
-                        <div class="label">Minutes</div>
-                    </div>
-                    <div class="stat">
-                        <div class="value" id="completedCount">0/0</div>
-                        <div class="label">Completed</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="practice-content">
-                <!-- Sidebar -->
-                <aside class="sidebar">
-                    <h4><i class="fas fa-list"></i> Questions</h4>
-                    <div class="questions-list" id="questionsList">
-                        <!-- Questions will appear here -->
-                    </div>
-                    
-                    <div class="tips-card">
-                        <h4><i class="fas fa-lightbulb"></i> Tips for Success</h4>
-                        <ul>
-                            <li><i class="fas fa-check-circle"></i> Read question carefully</li>
-                            <li><i class="fas fa-check-circle"></i> Structure your answer</li>
-                            <li><i class="fas fa-check-circle"></i> Use examples from experience</li>
-                            <li><i class="fas fa-check-circle"></i> Be honest and authentic</li>
-                            <li><i class="fas fa-check-circle"></i> Review feedback to improve</li>
-                        </ul>
-                    </div>
-                </aside>
-
-                <!-- Question Area -->
-                <div class="question-area">
-                    <div class="timer-box">
-                        <i class="fas fa-hourglass-half"></i>
-                        <span>Time Remaining:</span>
-                        <span class="timer" id="timerDisplay">02:00</span>
-                    </div>
-
-                    <div class="question-header">
-                        <span class="q-number" id="questionNumber">Question 1 of 5</span>
-                        <span class="difficulty" id="difficultyBadge">Medium</span>
-                    </div>
-
-                    <div class="question-text" id="questionText">
-                        Loading question...
-                    </div>
-
-                    <div class="answer-section">
-                        <label><i class="fas fa-edit"></i> Your Answer:</label>
-                        <textarea id="answerInput" class="answer-input" rows="6" placeholder="Type your answer here..."></textarea>
-                        
-                        <div class="action-buttons">
-                            <button id="submitBtn" class="btn-primary">
-                                <i class="fas fa-paper-plane"></i> Submit Answer
-                            </button>
-                            <button id="nextBtn" class="btn-secondary" disabled>
-                                Next Question <i class="fas fa-arrow-right"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Feedback Section -->
-                    <div id="feedbackSection" class="feedback-section">
-                        <h3><i class="fas fa-robot"></i> AI Feedback</h3>
-                        <div id="feedbackContent"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Completion Modal -->
-    <div id="completionModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>🎉 Interview Completed!</h2>
-            </div>
-            <div class="modal-body">
-                <div class="success-icon">🏆</div>
-                <p>Great job completing your practice interview!</p>
-                <div class="modal-stats">
-                    <div class="modal-stat">
-                        <span class="value" id="finalScore">0</span>
-                        <span class="label">Overall Score</span>
-                    </div>
-                    <div class="modal-stat">
-                        <span class="value" id="timeSpent">0</span>
-                        <span class="label">Time Spent</span>
-                    </div>
-                </div>
-                <div class="modal-buttons">
-                    <button onclick="location.href='dashboard.html'" class="btn-primary">
-                        View Dashboard
-                    </button>
-                    <button id="practiceAgainBtn" class="btn-secondary">
-                        Practice Again
-                    </button>
-                </div>
-            </div>
+        <div class="questions-container" id="questionsContainer">
+            <div class="loading">Loading questions from database...</div>
         </div>
     </div>
 
@@ -808,490 +203,138 @@
     </div>
 
     <script>
-        // Sample Questions Data
-        const questionsData = {
-            technical: {
-                name: "Technical Interview",
-                icon: "💻",
-                description: "Programming, algorithms, and system design",
-                questions: [
-                    {
-                        id: 1,
-                        text: "Explain the JavaScript Event Loop and how it handles asynchronous operations.",
-                        difficulty: "Hard",
-                        timeLimit: 120,
-                        idealAnswer: "The event loop is a fundamental concept that enables JavaScript to perform non-blocking operations. It works by continuously checking the call stack and task queues, moving callbacks from the queue to the stack when the stack is empty. This allows JavaScript to handle asynchronous operations like setTimeout, promises, and AJAX calls efficiently."
-                    },
-                    {
-                        id: 2,
-                        text: "What is the difference between CSS animations and JavaScript animations? When would you use each?",
-                        difficulty: "Medium",
-                        timeLimit: 120,
-                        idealAnswer: "CSS animations are declarative and hardware-accelerated, making them perfect for simple transitions like hover effects, loading spinners, and basic UI animations. JavaScript animations offer more control and are better for complex, interactive animations that require precise timing, chaining, or dynamic values based on user input."
-                    },
-                    {
-                        id: 3,
-                        text: "How would you optimize a React application that's rendering slowly?",
-                        difficulty: "Hard",
-                        timeLimit: 120,
-                        idealAnswer: "To optimize React performance: 1) Use React.memo for component memoization, 2) Implement useCallback and useMemo hooks to prevent unnecessary re-renders, 3) Use code splitting with React.lazy() and Suspense, 4) Virtualize long lists using react-window, 5) Optimize images and assets, 6) Avoid inline functions in render, 7) Use production build."
-                    },
-                    {
-                        id: 4,
-                        text: "Explain the concept of closures in JavaScript with a practical example.",
-                        difficulty: "Medium",
-                        timeLimit: 120,
-                        idealAnswer: "A closure is a function that has access to its outer function's scope even after the outer function has returned. For example: function outer(x) { return function inner(y) { return x + y; } } const add5 = outer(5); console.log(add5(3)); // 8. The inner function 'remembers' the value of x even after outer has executed."
-                    },
-                    {
-                        id: 5,
-                        text: "What are the key differences between SQL and NoSQL databases? When would you choose each?",
-                        difficulty: "Medium",
-                        timeLimit: 120,
-                        idealAnswer: "SQL databases are relational, table-based, use structured schema, and support ACID transactions. Best for complex queries and relationships. NoSQL databases are non-relational, document-based, flexible schema, and horizontally scalable. Choose SQL for financial systems, ERP; choose NoSQL for real-time apps, big data, rapid iteration."
-                    }
-                ]
-            },
-            hr: {
-                name: "HR Interview",
-                icon: "👔",
-                description: "Behavioral & situational questions",
-                questions: [
-                    {
-                        id: 6,
-                        text: "Tell me about yourself and why you're interested in this position.",
-                        difficulty: "Easy",
-                        timeLimit: 120,
-                        idealAnswer: "I'm a passionate software developer with 3 years of experience in full-stack development. I've worked on projects that improved efficiency by 40%. I'm excited about this position because it aligns with my skills in React and Node.js, and I admire your company's innovative culture. I'm looking to contribute to impactful projects while growing professionally."
-                    },
-                    {
-                        id: 7,
-                        text: "Describe a time you had a conflict with a team member. How did you resolve it?",
-                        difficulty: "Medium",
-                        timeLimit: 120,
-                        idealAnswer: "Using the STAR method: Situation - Two team members disagreed on architecture choice. Task - Needed to resolve conflict to meet deadline. Action - Facilitated a meeting, listened to both sides, suggested a compromise combining both ideas. Result - Team agreed on hybrid solution, delivered project on time, improved team communication."
-                    },
-                    {
-                        id: 8,
-                        text: "Where do you see yourself in 5 years?",
-                        difficulty: "Easy",
-                        timeLimit: 120,
-                        idealAnswer: "In 5 years, I see myself as a technical lead or senior architect, mentoring junior developers while still being hands-on with coding. I want to master cloud technologies and contribute to open-source projects. I aim to grow with this company, taking on more responsibility and helping solve complex technical challenges."
-                    }
-                ]
-            },
-            aptitude: {
-                name: "Aptitude Test",
-                icon: "🧮",
-                description: "Logical reasoning & quantitative",
-                questions: [
-                    {
-                        id: 9,
-                        text: "If a train travels 120 km in 2 hours, what is its speed in m/s?",
-                        difficulty: "Easy",
-                        timeLimit: 60,
-                        idealAnswer: "Speed = Distance/Time = 120/2 = 60 km/h. To convert to m/s: 60 × (1000/3600) = 60 × 5/18 = 16.67 m/s"
-                    },
-                    {
-                        id: 10,
-                        text: "A man buys an article for Rs. 1200 and sells it at a loss of 15%. Find the selling price.",
-                        difficulty: "Easy",
-                        timeLimit: 60,
-                        idealAnswer: "Loss = 15% of 1200 = 180. Selling Price = Cost Price - Loss = 1200 - 180 = Rs. 1020"
-                    }
-                ]
-            }
-        };
+        const API_URL = 'http://localhost:5000/api';
+        let allQuestions = [];
+        let currentFilter = 'all';
 
-        // Categories array
-        const categories = [
-            { id: "technical", name: "Technical Interview", icon: "💻", description: "Programming, algorithms, and system design questions" },
-            { id: "hr", name: "HR Interview", icon: "👔", description: "Behavioral and situational interview questions" },
-            { id: "aptitude", name: "Aptitude Test", icon: "🧮", description: "Logical reasoning and quantitative ability" }
-        ];
-
-        // State Management
-        let currentCategory = null;
-        let currentQuestions = [];
-        let currentIndex = 0;
-        let answers = [];
-        let currentTimer = null;
-        let timeLeft = 120;
-        let sessionStartTime = null;
-
-        // DOM Elements
-        const categorySection = document.getElementById('categorySection');
-        const practiceArea = document.getElementById('practiceArea');
-        const categoriesGrid = document.getElementById('categoriesGrid');
-        const questionsList = document.getElementById('questionsList');
-        const questionText = document.getElementById('questionText');
-        const answerInput = document.getElementById('answerInput');
-        const submitBtn = document.getElementById('submitBtn');
-        const nextBtn = document.getElementById('nextBtn');
-        const feedbackSection = document.getElementById('feedbackSection');
-        const feedbackContent = document.getElementById('feedbackContent');
-        const timerDisplay = document.getElementById('timerDisplay');
-        const totalQuestionsSpan = document.getElementById('totalQuestions');
-        const totalTimeSpan = document.getElementById('totalTime');
-        const completedCountSpan = document.getElementById('completedCount');
-        const currentCategorySpan = document.getElementById('currentCategory');
-        const questionNumberSpan = document.getElementById('questionNumber');
-        const difficultyBadge = document.getElementById('difficultyBadge');
-        const completionModal = document.getElementById('completionModal');
-        const finalScoreSpan = document.getElementById('finalScore');
-        const timeSpentSpan = document.getElementById('timeSpent');
-
-        // Load Categories
-        function loadCategories() {
-            categoriesGrid.innerHTML = categories.map(cat => `
-                <div class="category-card" onclick="startInterview('${cat.id}')">
-                    <div class="category-icon">${cat.icon}</div>
-                    <h3>${cat.name}</h3>
-                    <p>${cat.description}</p>
-                    <button class="start-btn">Start Practice →</button>
-                </div>
-            `).join('');
+        // Check if logged in
+        const token = localStorage.getItem('token');
+        if (!token) {
+            alert('Please login first');
+            window.location.href = 'login.html';
         }
 
-        // Start Interview
-        window.startInterview = function(categoryId) {
-            currentCategory = questionsData[categoryId];
-            currentQuestions = [...currentCategory.questions];
-            answers = new Array(currentQuestions.length).fill(null);
-            currentIndex = 0;
-            
-            currentCategorySpan.textContent = `${currentCategory.icon} ${currentCategory.name}`;
-            totalQuestionsSpan.textContent = currentQuestions.length;
-            totalTimeSpan.textContent = currentQuestions.length * 2;
-            completedCountSpan.textContent = `0/${currentQuestions.length}`;
-            
-            buildQuestionNav();
-            loadQuestion(0);
-            
-            categorySection.style.display = 'none';
-            practiceArea.style.display = 'block';
-            
-            sessionStartTime = Date.now();
-            showToast(`Started ${currentCategory.name}`, 'success');
-        };
-
-        // Build Question Navigation
-        function buildQuestionNav() {
-            questionsList.innerHTML = currentQuestions.map((q, idx) => `
-                <div class="question-item ${idx === 0 ? 'active' : ''} ${answers[idx] ? 'completed' : ''}" 
-                     onclick="goToQuestion(${idx})">
-                    <div class="q-num">${idx + 1}</div>
-                    <div class="q-text">${q.text.substring(0, 35)}${q.text.length > 35 ? '...' : ''}</div>
-                    ${answers[idx] ? '<i class="fas fa-check-circle" style="color: #28a745;"></i>' : ''}
-                </div>
-            `).join('');
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
         }
 
-        // Go to specific question
-        window.goToQuestion = function(index) {
-            if (answers[currentIndex] !== null || currentIndex === index) {
-                if (currentTimer) clearInterval(currentTimer);
-                loadQuestion(index);
-            } else {
-                showToast('Please submit your current answer first!', 'error');
-            }
-        };
-
-        // Load Question
-        function loadQuestion(index) {
-            currentIndex = index;
-            const question = currentQuestions[index];
-            
-            questionText.textContent = question.text;
-            questionNumberSpan.textContent = `Question ${index + 1} of ${currentQuestions.length}`;
-            difficultyBadge.textContent = question.difficulty;
-            difficultyBadge.className = `difficulty ${question.difficulty.toLowerCase()}`;
-            
-            answerInput.value = answers[index] || '';
-            
-            timeLeft = question.timeLimit;
-            updateTimerDisplay();
-            startTimer();
-            
-            feedbackSection.style.display = 'none';
-            
-            document.querySelectorAll('.question-item').forEach((item, i) => {
-                if (i === index) {
-                    item.classList.add('active');
+        // Fetch questions from database
+        async function fetchQuestions() {
+            try {
+                const response = await fetch(`${API_URL}/practice/questions?limit=50`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    allQuestions = data.data;
+                    displayQuestions();
                 } else {
-                    item.classList.remove('active');
+                    document.getElementById('questionsContainer').innerHTML = 
+                        '<div class="loading">No questions found. Please run the seed script.</div>';
                 }
-            });
-            
-            const completed = answers.filter(a => a !== null).length;
-            completedCountSpan.textContent = `${completed}/${currentQuestions.length}`;
-            submitBtn.disabled = false;
-            nextBtn.disabled = true;
-        }
-
-        // Timer Functions
-        function startTimer() {
-            if (currentTimer) clearInterval(currentTimer);
-            
-            currentTimer = setInterval(() => {
-                if (timeLeft <= 0) {
-                    clearInterval(currentTimer);
-                    handleTimeout();
-                } else {
-                    timeLeft--;
-                    updateTimerDisplay();
-                }
-            }, 1000);
-        }
-
-        function updateTimerDisplay() {
-            const minutes = Math.floor(timeLeft / 60);
-            const seconds = timeLeft % 60;
-            timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            
-            if (timeLeft <= 10) {
-                timerDisplay.style.color = '#ff4757';
-            } else {
-                timerDisplay.style.color = 'white';
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('questionsContainer').innerHTML = 
+                    '<div class="loading">Error loading questions. Make sure backend is running.</div>';
             }
         }
 
-        function handleTimeout() {
-            showToast("Time's up! Submitting your answer...", 'error');
-            submitAnswer();
-        }
-
-        // Generate AI Feedback
-        function generateFeedback(answer, question) {
-            const feedbackPoints = [];
-            let score = 0;
-            
-            const wordCount = answer.split(/\s+/).length;
-            if (wordCount < 30) {
-                feedbackPoints.push('⚠️ Your answer is quite brief. Aim for 50-100 words for better depth.');
-                score += 10;
-            } else if (wordCount < 80) {
-                feedbackPoints.push('✅ Good length! Consider adding a specific example to strengthen your answer.');
-                score += 20;
-            } else {
-                feedbackPoints.push('🌟 Excellent detail! Your answer is comprehensive and well-developed.');
-                score += 30;
+        // Display questions based on filter
+        function displayQuestions() {
+            let filteredQuestions = allQuestions;
+            if (currentFilter !== 'all') {
+                filteredQuestions = allQuestions.filter(q => q.type === currentFilter);
             }
             
-            const keywords = ['javascript', 'event loop', 'react', 'api', 'database', 'team', 'project', 'learn', 'develop', 'solve'];
-            const foundKeywords = keywords.filter(kw => answer.toLowerCase().includes(kw));
-            if (foundKeywords.length > 0) {
-                feedbackPoints.push(`📝 Good use of key terms: ${foundKeywords.slice(0, 3).join(', ')}`);
-                score += Math.min(foundKeywords.length * 5, 20);
-            }
-            
-            const hasStructure = /first|second|third|finally|in conclusion|additionally|moreover|however/.test(answer.toLowerCase());
-            if (hasStructure) {
-                feedbackPoints.push('🎯 Your answer has good logical structure and flow!');
-                score += 15;
-            } else {
-                feedbackPoints.push('💡 Tip: Use transition words like "first", "second", "finally" to structure your answer better.');
-            }
-            
-            const hasExamples = /example|for instance|specifically|like|such as/.test(answer.toLowerCase());
-            if (hasExamples) {
-                feedbackPoints.push('💪 Great use of specific examples to support your points!');
-                score += 15;
-            } else {
-                feedbackPoints.push('📌 Consider adding a concrete example from your experience to make your answer stronger.');
-            }
-            
-            if (answer.includes('!') || wordCount > 100) {
-                feedbackPoints.push('✨ Your answer shows confidence and enthusiasm!');
-                score += 10;
-            }
-            
-            feedbackPoints.push(`\n📖 Reference ideal answer: ${question.idealAnswer.substring(0, 150)}...`);
-            
-            feedbackPoints.push('\n🎓 Tips for improvement:');
-            feedbackPoints.push('• Review your answer and identify areas to add more detail');
-            feedbackPoints.push('• Practice structuring answers using the STAR method');
-            feedbackPoints.push('• Focus on quantifying achievements when possible');
-            
-            return {
-                feedback: feedbackPoints.join('\n\n'),
-                score: Math.min(Math.round(score), 100)
-            };
-        }
-
-        // Submit Answer
-        function submitAnswer() {
-            const answer = answerInput.value.trim();
-            
-            if (!answer) {
-                showToast('Please write your answer before submitting!', 'error');
+            if (filteredQuestions.length === 0) {
+                document.getElementById('questionsContainer').innerHTML = 
+                    '<div class="loading">No questions found for this category.</div>';
                 return;
             }
             
-            if (currentTimer) clearInterval(currentTimer);
-            
-            answers[currentIndex] = answer;
-            
-            const question = currentQuestions[currentIndex];
-            const { feedback, score } = generateFeedback(answer, question);
-            
-            displayFeedback(feedback, score);
-            
-            const navItems = document.querySelectorAll('.question-item');
-            navItems[currentIndex].classList.add('completed');
-            
-            const completed = answers.filter(a => a !== null).length;
-            completedCountSpan.textContent = `${completed}/${currentQuestions.length}`;
-            
-            nextBtn.disabled = false;
-            submitBtn.disabled = true;
-            
-            saveProgress();
-            
-            showToast(`Answer submitted! Score: ${score}/100`, 'success');
-        }
-
-        // Display Feedback
-        function displayFeedback(feedback, score) {
-            feedbackSection.style.display = 'block';
-            
-            const scoreColor = score >= 70 ? '#28a745' : (score >= 40 ? '#ffc107' : '#dc3545');
-            
-            feedbackContent.innerHTML = `
-                <div class="score" style="background: ${scoreColor}">
-                    <i class="fas fa-chart-line"></i> Score: ${score}/100
+            const html = filteredQuestions.map((q, index) => `
+                <div class="question-card" data-id="${q._id}">
+                    <div class="question-text">${index + 1}. ${q.question}</div>
+                    <div class="question-meta">
+                        <span class="badge ${q.type}">${q.type.toUpperCase()}</span>
+                        <span class="difficulty ${q.difficulty}">${q.difficulty}</span>
+                    </div>
+                    ${q.tips ? `<div style="font-size: 13px; color: #666; margin-top: 5px;">💡 Tips: ${q.tips.join(', ')}</div>` : ''}
+                    <div class="answer-section">
+                        <textarea rows="3" placeholder="Write your answer here..." id="answer-${q._id}"></textarea>
+                        <button class="submit-btn" onclick="submitAnswer('${q._id}')">Submit Answer</button>
+                        <div class="feedback" id="feedback-${q._id}"></div>
+                    </div>
                 </div>
-                <div class="feedback-text">${feedback}</div>
+            `).join('');
+            
+            document.getElementById('questionsContainer').innerHTML = html;
+        }
+
+        // Submit answer for feedback
+        async function submitAnswer(questionId) {
+            const answer = document.getElementById(`answer-${questionId}`).value;
+            const feedbackDiv = document.getElementById(`feedback-${questionId}`);
+            
+            if (!answer.trim()) {
+                alert('Please write an answer first');
+                return;
+            }
+            
+            // Simple feedback generation (you can enhance this)
+            const feedback = generateFeedback(answer);
+            const score = calculateScore(answer);
+            
+            feedbackDiv.innerHTML = `
+                <strong>Feedback:</strong><br>
+                ${feedback}<br><br>
+                <strong>Score: ${score}/100</strong>
             `;
+            feedbackDiv.style.display = 'block';
+            
+            // Save to localStorage for now (optional)
+            const savedAnswers = JSON.parse(localStorage.getItem('practiceAnswers') || '{}');
+            savedAnswers[questionId] = { answer, feedback, score, date: new Date().toISOString() };
+            localStorage.setItem('practiceAnswers', JSON.stringify(savedAnswers));
         }
 
-        // Next Question
-        function nextQuestion() {
-            if (currentIndex + 1 < currentQuestions.length) {
-                currentIndex++;
-                loadQuestion(currentIndex);
-            } else {
-                completeInterview();
+        function generateFeedback(answer) {
+            if (answer.length < 50) {
+                return "⚠️ Your answer is quite short. Try to provide more details and specific examples.";
             }
-        }
-
-        // Complete Interview
-        function completeInterview() {
-            let totalScore = 0;
-            let answeredCount = 0;
-            
-            for (let i = 0; i < currentQuestions.length; i++) {
-                if (answers[i]) {
-                    answeredCount++;
-                    const { score } = generateFeedback(answers[i], currentQuestions[i]);
-                    totalScore += score;
-                }
+            if (answer.length > 300) {
+                return "✅ Great detail! Consider structuring your answer more clearly with bullet points for key ideas.";
             }
-            
-            const averageScore = answeredCount > 0 ? Math.round(totalScore / answeredCount) : 0;
-            const timeSpent = Math.floor((Date.now() - sessionStartTime) / 1000 / 60);
-            
-            const interviewResult = {
-                id: Date.now(),
-                date: new Date().toISOString(),
-                category: currentCategory.name,
-                score: averageScore,
-                totalQuestions: currentQuestions.length,
-                answered: answeredCount,
-                timeSpent: timeSpent,
-                answers: answers
-            };
-            
-            let history = JSON.parse(localStorage.getItem('interviewHistory') || '[]');
-            history.unshift(interviewResult);
-            localStorage.setItem('interviewHistory', JSON.stringify(history.slice(0, 20)));
-            
-            finalScoreSpan.textContent = averageScore;
-            timeSpentSpan.textContent = `${timeSpent} min`;
-            completionModal.style.display = 'flex';
-            
-            showToast(`Interview completed! Score: ${averageScore}/100`, 'success');
+            return "👍 Good answer! To improve, add more specific examples from your experience and quantify your achievements where possible.";
         }
 
-        // Save Progress
-        function saveProgress() {
-            const progress = {
-                categoryId: currentCategory.name,
-                questions: currentQuestions,
-                answers: answers,
-                timestamp: Date.now()
-            };
-            localStorage.setItem('currentPracticeProgress', JSON.stringify(progress));
+        function calculateScore(answer) {
+            let score = 50;
+            if (answer.length > 100) score += 15;
+            if (answer.length > 200) score += 15;
+            if (answer.match(/example|experience|project|specific/i)) score += 10;
+            if (answer.match(/first|then|finally|however|therefore/i)) score += 10;
+            return Math.min(score, 100);
         }
 
-        // Load Progress
-        function loadProgress() {
-            const saved = localStorage.getItem('currentPracticeProgress');
-            if (saved) {
-                const progress = JSON.parse(saved);
-                if (confirm('You have an unfinished practice session. Would you like to continue?')) {
-                    currentCategory = { name: progress.categoryId, questions: progress.questions };
-                    currentQuestions = progress.questions;
-                    answers = progress.answers;
-                    currentIndex = answers.findIndex(a => a === null);
-                    if (currentIndex === -1) currentIndex = 0;
-                    
-                    currentCategorySpan.textContent = currentCategory.name;
-                    totalQuestionsSpan.textContent = currentQuestions.length;
-                    totalTimeSpan.textContent = currentQuestions.length * 2;
-                    completedCountSpan.textContent = `${answers.filter(a => a !== null).length}/${currentQuestions.length}`;
-                    
-                    buildQuestionNav();
-                    loadQuestion(currentIndex);
-                    
-                    categorySection.style.display = 'none';
-                    practiceArea.style.display = 'block';
-                    sessionStartTime = Date.now();
-                }
-            }
-        }
-
-        // Toast Notification
-        function showToast(message, type = 'info') {
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            const icon = type === 'success' ? '✅' : (type === 'error' ? '❌' : 'ℹ️');
-            toast.innerHTML = `${icon} ${message}`;
-            document.body.appendChild(toast);
-            
-            setTimeout(() => toast.remove(), 3000);
-        }
-
-        // Event Listeners
-        document.getElementById('backToCategories').addEventListener('click', () => {
-            if (confirm('Exit practice? Your progress will be saved.')) {
-                saveProgress();
-                categorySection.style.display = 'block';
-                practiceArea.style.display = 'none';
-                if (currentTimer) clearInterval(currentTimer);
-            }
+        // Filter buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.getAttribute('data-type');
+                displayQuestions();
+            });
         });
 
-        submitBtn.addEventListener('click', submitAnswer);
-        nextBtn.addEventListener('click', nextQuestion);
-
-        document.getElementById('practiceAgainBtn').addEventListener('click', () => {
-            completionModal.style.display = 'none';
-            categorySection.style.display = 'block';
-            practiceArea.style.display = 'none';
-            loadCategories();
-        });
-
-        // Close modal when clicking outside
-        window.onclick = (event) => {
-            if (event.target === completionModal) {
-                completionModal.style.display = 'none';
-            }
-        };
-
-        // Initialize
-        loadCategories();
-        loadProgress();
+        // Load questions on page load
+        fetchQuestions();
     </script>
 </body>
 </html>

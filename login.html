@@ -194,7 +194,6 @@ body{
             <a href="mockinterview.html">Mock Interview</a>
             <a href="dashboard.html">Dashboard</a>
             <a href="profile.html">Profile</a>
-            <a href="login.html">Logout</a>
         </div>
 </div>
 
@@ -215,15 +214,15 @@ body{
         <div id="loginForm">
             <div class="input-group">
                 <label>EMAIL</label>
-                <input type="text" placeholder="Enter email">
+                <input type="email" id="loginEmail" placeholder="Enter email">
             </div>
 
             <div class="input-group">
                 <label>PASSWORD</label>
-                <input type="password" placeholder="Enter password">
+                <input type="password" id="loginPassword" placeholder="Enter password">
             </div>
 
-            <button class="btn">Sign In</button>
+            <button class="btn" id="loginBtn">Login</button>
             <div class="extra"><a href="forgot-password.html">Trouble signing in?</a></div>
         </div>
 
@@ -231,20 +230,20 @@ body{
 
             <div class="input-group">
                 <label>FULL NAME</label>
-                <input type="text" placeholder="Enter name">
+                <input type="text" id="registerName" placeholder="Enter name">
             </div>
 
             <div class="input-group">
                 <label>EMAIL</label>
-                <input type="email" placeholder="Enter email">
+                <input type="email" id="registerEmail" placeholder="Enter email">
             </div>
 
             <div class="input-group">
                 <label>PASSWORD</label>
-                <input type="password" placeholder="Min 8 characters">
+                <input type="password" id="registerPassword" placeholder="Min 6 characters">
             </div>
 
-            <button class="btn">Create Account</button>
+            <button class="btn" id="registerBtn">Create Account</button>
             <div class="extra" onclick="showLogin()">Already have an account?</div>
         </div>
 
@@ -278,6 +277,81 @@ function showRegister(){
     document.querySelectorAll(".tab")[1].classList.add("active");
     document.querySelectorAll(".tab")[0].classList.remove("active");
 }
+
+// BACKEND CONNECTION CODE
+const API_URL = 'http://localhost:5000/api';
+
+// Login
+document.getElementById('loginBtn').addEventListener('click', async () => {
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    
+    if (!email || !password) {
+        alert('Please enter email and password');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_URL}/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
+            alert('Login successful!');
+            window.location.href = 'home.html';
+        } else {
+            alert(data.message || 'Login failed');
+        }
+    } catch (error) {
+        alert('Cannot connect to server. Make sure backend is running on port 5000');
+    }
+});
+
+// Register
+document.getElementById('registerBtn').addEventListener('click', async () => {
+    const name = document.getElementById('registerName').value;
+    const email = document.getElementById('registerEmail').value;
+    const password = document.getElementById('registerPassword').value;
+    
+    if (!name || !email || !password) {
+        alert('Please fill all fields');
+        return;
+    }
+    
+    if (password.length < 6) {
+        alert('Password must be at least 6 characters');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_URL}/auth/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, password })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            alert('Registration successful! Please login.');
+            showLogin();
+            // Clear form
+            document.getElementById('registerName').value = '';
+            document.getElementById('registerEmail').value = '';
+            document.getElementById('registerPassword').value = '';
+        } else {
+            alert(data.message || 'Registration failed');
+        }
+    } catch (error) {
+        alert('Cannot connect to server. Make sure backend is running on port 5000');
+    }
+});
 </script>
 
 </body>
