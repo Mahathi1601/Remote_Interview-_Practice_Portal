@@ -1,0 +1,1531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mock Interview - Remote Interview Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #F5F7FA;
+            min-height: 100vh;
+        }
+
+        /* Navigation Bar */
+        .navbar {
+            background: #23465B;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 50px;
+        }
+
+        .logo img {
+            height: 40px;
+            object-fit: contain;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 35px;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: #C6C6C6;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Category Selection */
+        .category-section {
+            animation: fadeIn 0.5s ease;
+        }
+
+        .section-title {
+            text-align: center;
+            color: #23465B;
+            margin-bottom: 3rem;
+        }
+
+        .section-title h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-title p {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .category-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .category-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .category-card h3 {
+            font-size: 1.3rem;
+            color: #23465B;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .category-card p {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .start-btn {
+            background: #23465B;
+            color: white;
+            border: none;
+            padding: 0.7rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .start-btn:hover {
+            background: #2F5673;
+            transform: scale(1.05);
+        }
+
+        /* Mock Interview Area */
+        .mock-area {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: #23465B;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+        }
+
+        .back-btn:hover {
+            color: #2F5673;
+        }
+
+        .mock-header {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .interview-info h3 {
+            color: #333;
+            font-size: 1.1rem;
+        }
+
+        .interview-info .category {
+            color: #23465B;
+            font-weight: 600;
+            margin-top: 0.25rem;
+        }
+
+        .progress-stats {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat .value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #23465B;
+        }
+
+        .stat .label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        /* Main Content */
+        .mock-content {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 2rem;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+            position: sticky;
+            top: 90px;
+        }
+
+        .sidebar h4 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .questions-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .question-item {
+            padding: 0.8rem;
+            margin-bottom: 0.5rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .question-item:hover {
+            background: #e9ecef;
+        }
+
+        .question-item.active {
+            background: #23465B;
+            color: white;
+        }
+
+        .question-item.completed {
+            opacity: 0.7;
+        }
+
+        .q-num {
+            width: 28px;
+            height: 28px;
+            background: #e9ecef;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .question-item.active .q-num {
+            background: white;
+            color: #23465B;
+        }
+
+        .confidence-badge {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.4rem;
+            border-radius: 10px;
+            margin-left: auto;
+        }
+
+        .confidence-high {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .confidence-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .confidence-low {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        /* Video Area */
+        .video-area {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .camera-container {
+            background: #1a1a2e;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        #userVideo {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            background: #2d3748;
+        }
+
+        .recording-indicator {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(220, 53, 69, 0.9);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            z-index: 10;
+        }
+
+        .recording-indicator.active {
+            display: flex;
+        }
+
+        .red-dot {
+            width: 10px;
+            height: 10px;
+            background: #ff4757;
+            border-radius: 50%;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .video-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .control-btn {
+            background: #23465B;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .control-btn:hover {
+            background: #2F5673;
+            transform: translateY(-2px);
+        }
+
+        .record-btn {
+            background: #dc3545;
+        }
+
+        .record-btn:hover {
+            background: #c82333;
+        }
+
+        .record-btn.recording {
+            background: #28a745;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Question Section */
+        .timer-box {
+            background: #23465B;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .timer {
+            font-size: 1.3rem;
+            font-weight: 700;
+            font-family: monospace;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .q-number {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .difficulty {
+            padding: 0.25rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .difficulty.easy {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .difficulty.medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .difficulty.hard {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .question-text {
+            font-size: 1.2rem;
+            color: #333;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #23465B;
+        }
+
+        /* Confidence Rating */
+        .confidence-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .confidence-section label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .confidence-options {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .confidence-btn {
+            flex: 1;
+            padding: 0.8rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .confidence-btn:hover {
+            border-color: #23465B;
+        }
+
+        .confidence-btn.selected {
+            background: #23465B;
+            color: white;
+            border-color: #23465B;
+        }
+
+        .confidence-btn[data-confidence="high"].selected {
+            background: #28a745;
+            border-color: #28a745;
+        }
+
+        .confidence-btn[data-confidence="medium"].selected {
+            background: #ffc107;
+            border-color: #ffc107;
+            color: #333;
+        }
+
+        .confidence-btn[data-confidence="low"].selected {
+            background: #dc3545;
+            border-color: #dc3545;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .btn-primary, .btn-secondary {
+            padding: 0.8rem 1.8rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .btn-primary {
+            background: #23465B;
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #2F5673;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #666;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #d0d0d0;
+        }
+
+        .btn-primary:disabled, .btn-secondary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Recordings Library */
+        .recordings-section {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .recordings-section h3 {
+            color: #333;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .recordings-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .recording-item {
+            background: white;
+            padding: 1rem;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid #23465B;
+        }
+
+        .recording-info {
+            flex: 1;
+        }
+
+        .recording-title {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .recording-meta {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 0.25rem;
+        }
+
+        .recording-confidence {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .view-video-btn {
+            background: #23465B;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.8rem;
+        }
+
+        .view-video-btn:hover {
+            background: #2F5673;
+        }
+
+        /* Modal for Video Playback */
+        .video-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 3000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .video-modal-content {
+            background: white;
+            border-radius: 15px;
+            max-width: 800px;
+            width: 90%;
+            padding: 1rem;
+        }
+
+        .video-modal video {
+            width: 100%;
+            border-radius: 10px;
+        }
+
+        .close-modal {
+            float: right;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+
+        /* Completion Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            max-width: 550px;
+            width: 90%;
+            text-align: center;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .success-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .modal-stats {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 1.5rem 0;
+        }
+
+        .modal-stat {
+            text-align: center;
+        }
+
+        .modal-stat .value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #23465B;
+            display: block;
+        }
+
+        .confidence-summary {
+            margin: 1rem 0;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .confidence-bar {
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: #28a745;
+            border-radius: 4px;
+            transition: width 0.5s;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            z-index: 2000;
+            animation: slideRight 0.3s ease;
+        }
+
+        @keyframes slideRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .toast.success {
+            border-left: 4px solid #28a745;
+        }
+
+        .toast.error {
+            border-left: 4px solid #dc3545;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 30px;
+            background: #2F5673;
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .footer a {
+            color: #C6C6C6;
+            margin: 0 10px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 15px;
+            }
+            
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 15px;
+            }
+            
+            .mock-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                position: static;
+            }
+            
+            .mock-header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            .progress-stats {
+                justify-content: center;
+            }
+            
+            .confidence-options {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <div class="navbar">
+        <div class="logo">
+            <img src="logo.png" alt="Logo">
+        </div>
+        <div class="nav-links">
+            <a href="home.html">Home</a>
+            <a href="practice.html">Practice</a>
+            <a href="mockinterview.html" class="active">Mock Interview</a>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="profile.html">Profile</a>
+            <a href="login.html">Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Category Selection -->
+        <div id="categorySection" class="category-section">
+            <div class="section-title">
+                <h1><i class="fas fa-video"></i> Mock Interview</h1>
+                <p>Record your answers and track your confidence level</p>
+            </div>
+            <div class="categories-grid" id="categoriesGrid">
+                <!-- Categories loaded here -->
+            </div>
+        </div>
+
+        <!-- Mock Interview Area -->
+        <div id="mockArea" class="mock-area">
+            <button class="back-btn" id="backToCategories">
+                <i class="fas fa-arrow-left"></i> Back to Categories
+            </button>
+
+            <div class="mock-header">
+                <div class="interview-info">
+                    <h3>Mock Interview Session</h3>
+                    <div class="category" id="currentCategory"></div>
+                </div>
+                <div class="progress-stats">
+                    <div class="stat">
+                        <div class="value" id="totalQuestions">0</div>
+                        <div class="label">Questions</div>
+                    </div>
+                    <div class="stat">
+                        <div class="value" id="totalTime">0</div>
+                        <div class="label">Minutes</div>
+                    </div>
+                    <div class="stat">
+                        <div class="value" id="completedCount">0/0</div>
+                        <div class="label">Completed</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mock-content">
+                <!-- Sidebar -->
+                <aside class="sidebar">
+                    <h4><i class="fas fa-list"></i> Questions</h4>
+                    <div class="questions-list" id="questionsList">
+                        <!-- Questions will appear here -->
+                    </div>
+                    
+                    <div class="tips-card" style="background: #fef5e7; padding: 1rem; border-radius: 10px; margin-top: 1.5rem; border-left: 3px solid #f39c12;">
+                        <h4 style="color: #e67e22; margin-bottom: 0.5rem;"><i class="fas fa-lightbulb"></i> Mock Interview Tips</h4>
+                        <ul style="list-style: none; padding-left: 0;">
+                            <li style="padding: 0.25rem 0; font-size: 0.8rem; color: #666;"><i class="fas fa-video"></i> Look at the camera</li>
+                            <li style="padding: 0.25rem 0; font-size: 0.8rem; color: #666;"><i class="fas fa-microphone"></i> Speak clearly</li>
+                            <li style="padding: 0.25rem 0; font-size: 0.8rem; color: #666;"><i class="fas fa-smile"></i> Show confidence</li>
+                            <li style="padding: 0.25rem 0; font-size: 0.8rem; color: #666;"><i class="fas fa-chart-line"></i> Rate honestly</li>
+                        </ul>
+                    </div>
+                </aside>
+
+                <!-- Video and Question Area -->
+                <div class="video-area">
+                    <!-- Camera -->
+                    <div class="camera-container">
+                        <video id="userVideo" autoplay muted playsinline></video>
+                        <div class="recording-indicator" id="recordingIndicator">
+                            <span class="red-dot"></span>
+                            Recording...
+                        </div>
+                    </div>
+
+                    <div class="video-controls">
+                        <button id="toggleCamera" class="control-btn">
+                            <i class="fas fa-video"></i> Camera
+                        </button>
+                        <button id="toggleMic" class="control-btn">
+                            <i class="fas fa-microphone"></i> Mic
+                        </button>
+                        <button id="startRecording" class="control-btn record-btn">
+                            <i class="fas fa-circle"></i> Start Recording
+                        </button>
+                    </div>
+
+                    <!-- Timer -->
+                    <div class="timer-box">
+                        <i class="fas fa-hourglass-half"></i>
+                        <span>Time Remaining:</span>
+                        <span class="timer" id="timerDisplay">02:00</span>
+                    </div>
+
+                    <!-- Question -->
+                    <div class="question-header">
+                        <span class="q-number" id="questionNumber">Question 1 of 5</span>
+                        <span class="difficulty" id="difficultyBadge">Medium</span>
+                    </div>
+
+                    <div class="question-text" id="questionText">
+                        Loading question...
+                    </div>
+
+                    <!-- Confidence Rating -->
+                    <div class="confidence-section">
+                        <label><i class="fas fa-chart-line"></i> How confident were you with your answer?</label>
+                        <div class="confidence-options">
+                            <button class="confidence-btn" data-confidence="high" onclick="setConfidence('high')">
+                                <i class="fas fa-smile"></i> Very Confident
+                            </button>
+                            <button class="confidence-btn" data-confidence="medium" onclick="setConfidence('medium')">
+                                <i class="fas fa-meh"></i> Somewhat Confident
+                            </button>
+                            <button class="confidence-btn" data-confidence="low" onclick="setConfidence('low')">
+                                <i class="fas fa-frown"></i> Not Confident
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button id="submitBtn" class="btn-primary" disabled>
+                            <i class="fas fa-check-circle"></i> Submit & Save Recording
+                        </button>
+                        <button id="nextBtn" class="btn-secondary" disabled>
+                            Next Question <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+
+                    <!-- Recordings Library -->
+                    <div id="recordingsSection" class="recordings-section">
+                        <h3><i class="fas fa-video"></i> Your Recorded Answers</h3>
+                        <div id="recordingsList" class="recordings-list">
+                            <!-- Recordings will appear here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Video Playback Modal -->
+    <div id="videoModal" class="video-modal">
+        <div class="video-modal-content">
+            <span class="close-modal" onclick="closeVideoModal()">&times;</span>
+            <video id="playbackVideo" controls></video>
+        </div>
+    </div>
+
+    <!-- Completion Modal -->
+    <div id="completionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🎉 Mock Interview Completed!</h2>
+            </div>
+            <div class="modal-body">
+                <div class="success-icon">🏆</div>
+                <p>Great job completing your mock interview!</p>
+                <div class="confidence-summary">
+                    <strong>Average Confidence Score</strong>
+                    <div class="confidence-bar">
+                        <div class="confidence-fill" id="confidenceFill" style="width: 0%"></div>
+                    </div>
+                    <div style="font-size: 1.5rem; font-weight: 700; color: #23465B; margin-top: 0.5rem;" id="avgConfidenceDisplay">0%</div>
+                </div>
+                <div class="modal-stats">
+                    <div class="modal-stat">
+                        <span class="value" id="finalScore">0</span>
+                        <span class="label">Questions Answered</span>
+                    </div>
+                    <div class="modal-stat">
+                        <span class="value" id="timeSpent">0</span>
+                        <span class="label">Time Spent</span>
+                    </div>
+                </div>
+                <div class="modal-buttons">
+                    <button onclick="location.href='dashboard.html'" class="btn-primary">
+                        View Dashboard
+                    </button>
+                    <button id="practiceAgainBtn" class="btn-secondary">
+                        Practice Again
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>© 2026 Remote Interview Practice Portal</p>
+        <div>
+            <a href="#">About</a>
+            <a href="#">Help Center</a>
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms</a>
+        </div>
+    </div>
+
+    <script>
+        // Mock Interview Questions Data
+        const mockQuestionsData = {
+            technical: {
+                name: "Technical Mock Interview",
+                icon: "💻",
+                questions: [
+                    { id: 1, text: "Explain the JavaScript Event Loop and how it handles asynchronous operations.", difficulty: "Hard", timeLimit: 120 },
+                    { id: 2, text: "What is the difference between CSS animations and JavaScript animations?", difficulty: "Medium", timeLimit: 120 },
+                    { id: 3, text: "How would you optimize a React application that's rendering slowly?", difficulty: "Hard", timeLimit: 120 },
+                    { id: 4, text: "Explain closures in JavaScript with a practical example.", difficulty: "Medium", timeLimit: 120 },
+                    { id: 5, text: "What are the differences between SQL and NoSQL databases?", difficulty: "Medium", timeLimit: 120 }
+                ]
+            },
+            hr: {
+                name: "HR Mock Interview",
+                icon: "👔",
+                questions: [
+                    { id: 6, text: "Tell me about yourself and why you're interested in this position.", difficulty: "Easy", timeLimit: 120 },
+                    { id: 7, text: "Describe a time you had a conflict with a team member. How did you resolve it?", difficulty: "Medium", timeLimit: 120 },
+                    { id: 8, text: "Where do you see yourself in 5 years?", difficulty: "Easy", timeLimit: 120 },
+                    { id: 9, text: "What are your greatest strengths and weaknesses?", difficulty: "Medium", timeLimit: 120 },
+                    { id: 10, text: "Why should we hire you?", difficulty: "Medium", timeLimit: 120 }
+                ]
+            }
+        };
+
+        const categories = [
+            { id: "technical", name: "Technical Mock Interview", icon: "💻", description: "Practice technical questions with video recording" },
+            { id: "hr", name: "HR Mock Interview", icon: "👔", description: "Practice behavioral questions with video recording" }
+        ];
+
+        // State Management
+        let currentCategory = null;
+        let currentQuestions = [];
+        let currentIndex = 0;
+        let recordings = [];
+        let confidences = [];
+        let currentTimer = null;
+        let timeLeft = 120;
+        let sessionStartTime = null;
+        
+        // Recording Variables
+        let mediaStream = null;
+        let mediaRecorder = null;
+        let recordedChunks = [];
+        let isRecording = false;
+        let isCameraOn = true;
+        let isMicOn = true;
+        let currentConfidence = null;
+
+        // DOM Elements
+        const categorySection = document.getElementById('categorySection');
+        const mockArea = document.getElementById('mockArea');
+        const categoriesGrid = document.getElementById('categoriesGrid');
+        const questionsList = document.getElementById('questionsList');
+        const recordingsList = document.getElementById('recordingsList');
+        const recordingsSection = document.getElementById('recordingsSection');
+        const questionText = document.getElementById('questionText');
+        const submitBtn = document.getElementById('submitBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const totalQuestionsSpan = document.getElementById('totalQuestions');
+        const totalTimeSpan = document.getElementById('totalTime');
+        const completedCountSpan = document.getElementById('completedCount');
+        const currentCategorySpan = document.getElementById('currentCategory');
+        const questionNumberSpan = document.getElementById('questionNumber');
+        const difficultyBadge = document.getElementById('difficultyBadge');
+        const completionModal = document.getElementById('completionModal');
+        const finalScoreSpan = document.getElementById('finalScore');
+        const timeSpentSpan = document.getElementById('timeSpent');
+        const avgConfidenceDisplay = document.getElementById('avgConfidenceDisplay');
+        const confidenceFill = document.getElementById('confidenceFill');
+        const userVideo = document.getElementById('userVideo');
+
+        // Load Categories
+        function loadCategories() {
+            categoriesGrid.innerHTML = categories.map(cat => `
+                <div class="category-card" onclick="startMockInterview('${cat.id}')">
+                    <div class="category-icon">${cat.icon}</div>
+                    <h3>${cat.name}</h3>
+                    <p>${cat.description}</p>
+                    <button class="start-btn">Start Mock Interview →</button>
+                </div>
+            `).join('');
+        }
+
+        // Start Mock Interview
+        window.startMockInterview = async function(categoryId) {
+            currentCategory = mockQuestionsData[categoryId];
+            currentQuestions = [...currentCategory.questions];
+            recordings = new Array(currentQuestions.length).fill(null);
+            confidences = new Array(currentQuestions.length).fill(null);
+            currentIndex = 0;
+            
+            currentCategorySpan.textContent = `${currentCategory.icon} ${currentCategory.name}`;
+            totalQuestionsSpan.textContent = currentQuestions.length;
+            totalTimeSpan.textContent = currentQuestions.length * 2;
+            completedCountSpan.textContent = `0/${currentQuestions.length}`;
+            
+            buildQuestionNav();
+            await initCamera();
+            loadQuestion(0);
+            
+            categorySection.style.display = 'none';
+            mockArea.style.display = 'block';
+            sessionStartTime = Date.now();
+            showToast(`Started ${currentCategory.name}`, 'success');
+        };
+
+        // Initialize Camera
+        async function initCamera() {
+            try {
+                mediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                userVideo.srcObject = mediaStream;
+            } catch (err) {
+                console.error('Camera error:', err);
+                showToast('Please allow camera and microphone access', 'error');
+            }
+        }
+
+        // Build Question Navigation
+        function buildQuestionNav() {
+            questionsList.innerHTML = currentQuestions.map((q, idx) => `
+                <div class="question-item ${idx === 0 ? 'active' : ''} ${recordings[idx] ? 'completed' : ''}" 
+                     onclick="goToQuestion(${idx})">
+                    <div class="q-num">${idx + 1}</div>
+                    <div class="q-text">${q.text.substring(0, 35)}${q.text.length > 35 ? '...' : ''}</div>
+                    ${confidences[idx] ? `<span class="confidence-badge confidence-${confidences[idx]}">${confidences[idx] === 'high' ? '😊' : (confidences[idx] === 'medium' ? '😐' : '😟')}</span>` : ''}
+                </div>
+            `).join('');
+        }
+
+        // Load Question
+        function loadQuestion(index) {
+            if (currentTimer) clearInterval(currentTimer);
+            
+            currentIndex = index;
+            const question = currentQuestions[index];
+            
+            questionText.textContent = question.text;
+            questionNumberSpan.textContent = `Question ${index + 1} of ${currentQuestions.length}`;
+            difficultyBadge.textContent = question.difficulty;
+            difficultyBadge.className = `difficulty ${question.difficulty.toLowerCase()}`;
+            
+            timeLeft = question.timeLimit;
+            updateTimerDisplay();
+            startTimer();
+            
+            currentConfidence = confidences[index] || null;
+            updateConfidenceUI();
+            
+            // Update active state
+            document.querySelectorAll('.question-item').forEach((item, i) => {
+                if (i === index) item.classList.add('active');
+                else item.classList.remove('active');
+            });
+            
+            const completed = recordings.filter(r => r !== null).length;
+            completedCountSpan.textContent = `${completed}/${currentQuestions.length}`;
+            
+            submitBtn.disabled = recordings[index] !== null;
+            nextBtn.disabled = recordings[index] === null;
+            
+            // Show recordings section if any exist
+            updateRecordingsList();
+        }
+
+        // Set Confidence
+        window.setConfidence = function(level) {
+            currentConfidence = level;
+            updateConfidenceUI();
+        };
+
+        function updateConfidenceUI() {
+            document.querySelectorAll('.confidence-btn').forEach(btn => {
+                btn.classList.remove('selected');
+                if (btn.dataset.confidence === currentConfidence) {
+                    btn.classList.add('selected');
+                }
+            });
+        }
+
+        // Timer Functions
+        function startTimer() {
+            if (currentTimer) clearInterval(currentTimer);
+            
+            currentTimer = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(currentTimer);
+                    handleTimeout();
+                } else {
+                    timeLeft--;
+                    updateTimerDisplay();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            if (timeLeft <= 10) timerDisplay.style.color = '#ff4757';
+            else timerDisplay.style.color = 'white';
+        }
+
+        function handleTimeout() {
+            showToast("Time's up! Please record your answer.", 'error');
+        }
+
+        // Recording Functions
+        function startRecording() {
+            if (!mediaStream) {
+                showToast('Camera not available', 'error');
+                return;
+            }
+            
+            recordedChunks = [];
+            mediaRecorder = new MediaRecorder(mediaStream);
+            
+            mediaRecorder.ondataavailable = (event) => {
+                if (event.data.size > 0) recordedChunks.push(event.data);
+            };
+            
+            mediaRecorder.onstop = () => {
+                const blob = new Blob(recordedChunks, { type: 'video/webm' });
+                const url = URL.createObjectURL(blob);
+                recordings[currentIndex] = { url, blob, timestamp: Date.now() };
+                
+                const recordBtn = document.getElementById('startRecording');
+                recordBtn.classList.remove('recording');
+                recordBtn.innerHTML = '<i class="fas fa-circle"></i> Start Recording';
+                document.getElementById('recordingIndicator').classList.remove('active');
+                isRecording = false;
+                
+                showToast('Recording saved! Please rate your confidence and submit.', 'success');
+                submitBtn.disabled = false;
+            };
+            
+            mediaRecorder.start();
+            isRecording = true;
+            
+            const recordBtn = document.getElementById('startRecording');
+            recordBtn.classList.add('recording');
+            recordBtn.innerHTML = '<i class="fas fa-stop"></i> Stop Recording';
+            document.getElementById('recordingIndicator').classList.add('active');
+        }
+
+        function stopRecording() {
+            if (mediaRecorder && isRecording) {
+                mediaRecorder.stop();
+            }
+        }
+
+        // Toggle Recording
+        document.getElementById('startRecording').addEventListener('click', () => {
+            if (isRecording) stopRecording();
+            else startRecording();
+        });
+
+        // Toggle Camera
+        document.getElementById('toggleCamera').addEventListener('click', () => {
+            if (mediaStream) {
+                const videoTrack = mediaStream.getVideoTracks()[0];
+                if (videoTrack) {
+                    isCameraOn = !isCameraOn;
+                    videoTrack.enabled = isCameraOn;
+                    showToast(isCameraOn ? 'Camera on' : 'Camera off', 'info');
+                }
+            }
+        });
+
+        // Toggle Mic
+        document.getElementById('toggleMic').addEventListener('click', () => {
+            if (mediaStream) {
+                const audioTrack = mediaStream.getAudioTracks()[0];
+                if (audioTrack) {
+                    isMicOn = !isMicOn;
+                    audioTrack.enabled = isMicOn;
+                    showToast(isMicOn ? 'Microphone on' : 'Microphone off', 'info');
+                }
+            }
+        });
+
+        // Submit Answer
+        function submitAnswer() {
+            if (!recordings[currentIndex]) {
+                showToast('Please record your answer first!', 'error');
+                return;
+            }
+            
+            if (!currentConfidence) {
+                showToast('Please rate your confidence level!', 'error');
+                return;
+            }
+            
+            confidences[currentIndex] = currentConfidence;
+            
+            // Update navigation
+            const navItems = document.querySelectorAll('.question-item');
+            navItems[currentIndex].classList.add('completed');
+            
+            const completed = recordings.filter(r => r !== null).length;
+            completedCountSpan.textContent = `${completed}/${currentQuestions.length}`;
+            
+            updateRecordingsList();
+            
+            submitBtn.disabled = true;
+            nextBtn.disabled = false;
+            
+            showToast('Answer saved!', 'success');
+        }
+
+        // Update Recordings List
+        function updateRecordingsList() {
+            const hasRecordings = recordings.some(r => r !== null);
+            recordingsSection.style.display = hasRecordings ? 'block' : 'none';
+            
+            const completedRecordings = recordings.filter((r, idx) => r !== null).map((r, idx) => {
+                const originalIdx = recordings.findIndex((rec, i) => rec === r);
+                return { ...r, idx: originalIdx };
+            });
+            
+            if (completedRecordings.length === 0) return;
+            
+            recordingsList.innerHTML = completedRecordings.map(rec => `
+                <div class="recording-item">
+                    <div class="recording-info">
+                        <div class="recording-title">Question ${rec.idx + 1}: ${currentQuestions[rec.idx].text.substring(0, 50)}...</div>
+                        <div class="recording-meta">
+                            ${new Date(rec.timestamp).toLocaleTimeString()}
+                            <span class="recording-confidence confidence-${confidences[rec.idx]}">
+                                ${confidences[rec.idx] === 'high' ? '😊 Very Confident' : (confidences[rec.idx] === 'medium' ? '😐 Somewhat Confident' : '😟 Not Confident')}
+                            </span>
+                        </div>
+                    </div>
+                    <button class="view-video-btn" onclick="playRecording(${rec.idx})">
+                        <i class="fas fa-play"></i> Play
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // Play Recording
+        window.playRecording = function(questionIndex) {
+            const recording = recordings[questionIndex];
+            if (recording && recording.url) {
+                const modal = document.getElementById('videoModal');
+                const video = document.getElementById('playbackVideo');
+                video.src = recording.url;
+                modal.style.display = 'flex';
+                video.play();
+            }
+        };
+
+        function closeVideoModal() {
+            const modal = document.getElementById('videoModal');
+            const video = document.getElementById('playbackVideo');
+            video.pause();
+            video.src = '';
+            modal.style.display = 'none';
+        }
+
+        // Next Question
+        function nextQuestion() {
+            if (currentIndex + 1 < currentQuestions.length) {
+                currentIndex++;
+                loadQuestion(currentIndex);
+            } else {
+                completeInterview();
+            }
+        }
+
+        // Complete Interview
+        function completeInterview() {
+            const answeredCount = recordings.filter(r => r !== null).length;
+            const timeSpent = Math.floor((Date.now() - sessionStartTime) / 1000 / 60);
+            
+            // Calculate average confidence
+            let confidenceScores = confidences.map(c => {
+                if (c === 'high') return 100;
+                if (c === 'medium') return 60;
+                if (c === 'low') return 30;
+                return 0;
+            });
+            
+            const avgConfidence = confidenceScores.reduce((a, b) => a + b, 0) / answeredCount;
+            
+            // Save to localStorage
+            const interviewResult = {
+                id: Date.now(),
+                date: new Date().toISOString(),
+                category: currentCategory.name,
+                type: 'mock',
+                totalQuestions: currentQuestions.length,
+                answered: answeredCount,
+                timeSpent: timeSpent,
+                avgConfidence: Math.round(avgConfidence),
+                recordings: recordings.map(r => r ? { timestamp: r.timestamp } : null),
+                confidences: confidences
+            };
+            
+            let history = JSON.parse(localStorage.getItem('mockInterviewHistory') || '[]');
+            history.unshift(interviewResult);
+            localStorage.setItem('mockInterviewHistory', JSON.stringify(history.slice(0, 20)));
+            
+            // Show modal
+            finalScoreSpan.textContent = answeredCount;
+            timeSpentSpan.textContent = `${timeSpent} min`;
+            avgConfidenceDisplay.textContent = `${Math.round(avgConfidence)}%`;
+            confidenceFill.style.width = `${avgConfidence}%`;
+            
+            if (avgConfidence >= 70) confidenceFill.style.background = '#28a745';
+            else if (avgConfidence >= 40) confidenceFill.style.background = '#ffc107';
+            else confidenceFill.style.background = '#dc3545';
+            
+            completionModal.style.display = 'flex';
+            showToast(`Mock Interview completed! Average confidence: ${Math.round(avgConfidence)}%`, 'success');
+        }
+
+        // Go to Question
+        window.goToQuestion = function(index) {
+            if (recordings[currentIndex] !== null || currentIndex === index) {
+                if (currentTimer) clearInterval(currentTimer);
+                loadQuestion(index);
+            } else {
+                showToast('Please complete the current question first!', 'error');
+            }
+        };
+
+        // Toast Notification
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            const icon = type === 'success' ? '✅' : (type === 'error' ? '❌' : 'ℹ️');
+            toast.innerHTML = `${icon} ${message}`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // Event Listeners
+        document.getElementById('backToCategories').addEventListener('click', () => {
+            if (confirm('Exit mock interview? Your progress will be saved.')) {
+                categorySection.style.display = 'block';
+                mockArea.style.display = 'none';
+                if (currentTimer) clearInterval(currentTimer);
+                if (mediaStream) {
+                    mediaStream.getTracks().forEach(track => track.stop());
+                }
+            }
+        });
+
+        submitBtn.addEventListener('click', submitAnswer);
+        nextBtn.addEventListener('click', nextQuestion);
+
+        document.getElementById('practiceAgainBtn').addEventListener('click', () => {
+            completionModal.style.display = 'none';
+            categorySection.style.display = 'block';
+            mockArea.style.display = 'none';
+            if (mediaStream) {
+                mediaStream.getTracks().forEach(track => track.stop());
+            }
+            loadCategories();
+        });
+
+        window.onclick = (event) => {
+            if (event.target === completionModal) {
+                completionModal.style.display = 'none';
+            }
+        };
+
+        // Initialize
+        loadCategories();
+    </script>
+</body>
+</html>

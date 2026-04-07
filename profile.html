@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Remote Interview Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #F5F7FA;
+            min-height: 100vh;
+        }
+
+        /* Navigation Bar */
+        .navbar {
+            background: #23465B;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 50px;
+        }
+
+        .logo img {
+            height: 40px;
+            object-fit: contain;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 35px;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: #C6C6C6;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Profile Layout */
+        .profile-layout {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 2rem;
+        }
+
+        /* Profile Sidebar */
+        .profile-sidebar {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            height: fit-content;
+            position: sticky;
+            top: 90px;
+        }
+
+        .profile-avatar {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 1.5rem;
+        }
+
+        .profile-avatar img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #23465B;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .edit-avatar-btn {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            background: #23465B;
+            color: white;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .edit-avatar-btn:hover {
+            background: #2F5673;
+            transform: scale(1.1);
+        }
+
+        .profile-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #23465B;
+            margin-bottom: 0.25rem;
+        }
+
+        .profile-email {
+            color: #666;
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .profile-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 1.5rem;
+            padding: 1rem 0;
+            border-top: 1px solid #e0e0e0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .profile-stat {
+            text-align: center;
+        }
+
+        .profile-stat .number {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #23465B;
+        }
+
+        .profile-stat .label {
+            font-size: 0.7rem;
+            color: #666;
+        }
+
+        .member-since {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .delete-account {
+            background: none;
+            border: none;
+            color: #dc3545;
+            cursor: pointer;
+            font-size: 0.85rem;
+            margin-top: 1rem;
+            transition: all 0.3s;
+        }
+
+        .delete-account:hover {
+            color: #c82333;
+            text-decoration: underline;
+        }
+
+        /* Profile Main Content */
+        .profile-main {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            color: #23465B;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #23465B;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .btn-save {
+            background: #23465B;
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .btn-save:hover {
+            background: #2F5673;
+            transform: translateY(-2px);
+        }
+
+        /* Skills Section */
+        .skills-section {
+            margin-top: 2rem;
+        }
+
+        .skills-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .skill-tag {
+            background: #e9ecef;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: #23465B;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .skill-tag i {
+            cursor: pointer;
+            color: #dc3545;
+            font-size: 0.7rem;
+        }
+
+        .skill-tag i:hover {
+            color: #c82333;
+        }
+
+        .add-skill {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .add-skill input {
+            flex: 1;
+            padding: 0.6rem 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .add-skill button {
+            background: #23465B;
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        /* Experience Section */
+        .experience-item {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .experience-info h4 {
+            color: #23465B;
+            margin-bottom: 0.25rem;
+        }
+
+        .experience-info p {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .delete-exp {
+            background: none;
+            border: none;
+            color: #dc3545;
+            cursor: pointer;
+            font-size: 1.1rem;
+        }
+
+        .add-experience {
+            margin-top: 1rem;
+        }
+
+        .add-experience-btn {
+            background: none;
+            border: 2px dashed #23465B;
+            color: #23465B;
+            padding: 0.8rem;
+            border-radius: 10px;
+            width: 100%;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .add-experience-btn:hover {
+            background: rgba(35, 70, 91, 0.05);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .modal-body {
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #666;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            z-index: 2000;
+            animation: slideRight 0.3s ease;
+        }
+
+        @keyframes slideRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .toast.success {
+            border-left: 4px solid #28a745;
+        }
+
+        .toast.error {
+            border-left: 4px solid #dc3545;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 30px;
+            background: #2F5673;
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .footer a {
+            color: #C6C6C6;
+            margin: 0 10px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 15px;
+            }
+            
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 15px;
+            }
+            
+            .profile-layout {
+                grid-template-columns: 1fr;
+            }
+            
+            .profile-sidebar {
+                position: static;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <div class="navbar">
+        <div class="logo">
+            <img src="logo.png" alt="Logo">
+        </div>
+        <div class="nav-links">
+            <a href="home.html">Home</a>
+            <a href="practice.html">Practice</a>
+            <a href="mockinterview.html">Mock Interview</a>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="profile.html" class="active">Profile</a>
+            <a href="login.html">Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="profile-layout">
+            <!-- Profile Sidebar -->
+            <aside class="profile-sidebar">
+                <div class="profile-avatar">
+                    <img id="profileAvatar" src="https://ui-avatars.com/api/?background=23465B&color=fff&name=User" alt="Profile">
+                    <button class="edit-avatar-btn" onclick="openAvatarModal()">
+                        <i class="fas fa-camera"></i>
+                    </button>
+                </div>
+                <h2 class="profile-name" id="profileName">John Doe</h2>
+                <p class="profile-email" id="profileEmail">john@example.com</p>
+                
+                <div class="profile-stats">
+                    <div class="profile-stat">
+                        <div class="number" id="statInterviews">0</div>
+                        <div class="label">Interviews</div>
+                    </div>
+                    <div class="profile-stat">
+                        <div class="number" id="statQuestions">0</div>
+                        <div class="label">Questions</div>
+                    </div>
+                    <div class="profile-stat">
+                        <div class="number" id="statAvgScore">0</div>
+                        <div class="label">Avg Score</div>
+                    </div>
+                </div>
+                
+                <div class="member-since" id="memberSince">Member since: Jan 2024</div>
+                
+                <button class="delete-account" onclick="openDeleteModal()">
+                    <i class="fas fa-trash-alt"></i> Delete Account
+                </button>
+            </aside>
+
+            <!-- Profile Main Content -->
+            <main class="profile-main">
+                <!-- Personal Information -->
+                <div>
+                    <h3 class="section-title">
+                        <i class="fas fa-user"></i> Personal Information
+                    </h3>
+                    <form id="profileForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Full Name</label>
+                                <input type="text" id="fullName" placeholder="Enter your full name">
+                            </div>
+                            <div class="form-group">
+                                <label>Email Address</label>
+                                <input type="email" id="email" placeholder="Enter your email">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Phone Number</label>
+                                <input type="tel" id="phone" placeholder="Enter your phone number">
+                            </div>
+                            <div class="form-group">
+                                <label>Date of Birth</label>
+                                <input type="date" id="dob">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Bio / About Me</label>
+                            <textarea id="bio" rows="3" placeholder="Tell us about yourself..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Experience Level</label>
+                            <select id="experienceLevel">
+                                <option value="Fresher">Fresher (0-1 years)</option>
+                                <option value="Beginner">Beginner (1-2 years)</option>
+                                <option value="Intermediate">Intermediate (2-4 years)</option>
+                                <option value="Experienced">Experienced (4-6 years)</option>
+                                <option value="Senior">Senior (6+ years)</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn-save">
+                            <i class="fas fa-save"></i> Save Changes
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Skills Section -->
+                <div class="skills-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-code"></i> Skills
+                    </h3>
+                    <div class="skills-list" id="skillsList">
+                        <!-- Skills will appear here -->
+                    </div>
+                    <div class="add-skill">
+                        <input type="text" id="newSkill" placeholder="Add a skill (e.g., JavaScript, Python, React)">
+                        <button onclick="addSkill()">
+                            <i class="fas fa-plus"></i> Add
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Change Password -->
+                <div style="margin-top: 2rem;">
+                    <h3 class="section-title">
+                        <i class="fas fa-lock"></i> Change Password
+                    </h3>
+                    <form id="passwordForm">
+                        <div class="form-group">
+                            <label>Current Password</label>
+                            <input type="password" id="currentPassword" placeholder="Enter current password">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>New Password</label>
+                                <input type="password" id="newPassword" placeholder="Enter new password">
+                            </div>
+                            <div class="form-group">
+                                <label>Confirm New Password</label>
+                                <input type="password" id="confirmPassword" placeholder="Confirm new password">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-save">
+                            <i class="fas fa-key"></i> Update Password
+                        </button>
+                    </form>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Avatar Modal -->
+    <div id="avatarModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Change Profile Picture</h3>
+            </div>
+            <div class="modal-body">
+                <div style="margin-bottom: 1rem;">
+                    <img id="avatarPreview" src="" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover;">
+                </div>
+                <input type="color" id="avatarColor" value="#23465B">
+                <div style="margin-top: 1rem;">
+                    <input type="text" id="avatarInitials" placeholder="Initials (e.g., JD)" maxlength="2" style="width: 100%; padding: 0.5rem;">
+                </div>
+                <div class="modal-buttons">
+                    <button onclick="updateAvatar()" class="btn-save">Save</button>
+                    <button onclick="closeAvatarModal()" class="btn-secondary">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Account Modal -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Delete Account</h3>
+            </div>
+            <div class="modal-body">
+                <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #dc3545; margin-bottom: 1rem;"></i>
+                <p>Are you sure you want to delete your account?</p>
+                <p style="font-size: 0.85rem; color: #666; margin-top: 0.5rem;">This action cannot be undone. All your data will be permanently deleted.</p>
+                <div class="modal-buttons">
+                    <button onclick="deleteAccount()" class="btn-danger">Yes, Delete</button>
+                    <button onclick="closeDeleteModal()" class="btn-secondary">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>© 2026 Remote Interview Practice Portal</p>
+        <div>
+            <a href="#">About</a>
+            <a href="#">Help Center</a>
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms</a>
+        </div>
+    </div>
+
+    <script>
+        // Load user data from localStorage
+        function loadUserData() {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            
+            document.getElementById('fullName').value = user.fullName || user.name || '';
+            document.getElementById('email').value = user.email || '';
+            document.getElementById('phone').value = user.phone || '';
+            document.getElementById('dob').value = user.dob || '';
+            document.getElementById('bio').value = user.bio || '';
+            document.getElementById('experienceLevel').value = user.experienceLevel || 'Fresher';
+            document.getElementById('profileName').textContent = user.fullName || user.name || 'Guest User';
+            document.getElementById('profileEmail').textContent = user.email || 'guest@example.com';
+            
+            // Load avatar
+            const avatarUrl = user.avatar || `https://ui-avatars.com/api/?background=23465B&color=fff&name=${encodeURIComponent(user.fullName || user.name || 'User')}`;
+            document.getElementById('profileAvatar').src = avatarUrl;
+            
+            // Load skills
+            const skills = user.skills || [];
+            displaySkills(skills);
+            
+            // Load stats
+            loadUserStats();
+            
+            // Member since
+            if (user.joinedDate) {
+                const joined = new Date(user.joinedDate);
+                document.getElementById('memberSince').textContent = `Member since: ${joined.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}`;
+            }
+        }
+        
+        // Load user statistics
+        function loadUserStats() {
+            const practiceHistory = JSON.parse(localStorage.getItem('interviewHistory') || '[]');
+            const mockHistory = JSON.parse(localStorage.getItem('mockInterviewHistory') || '[]');
+            
+            const totalInterviews = practiceHistory.length + mockHistory.length;
+            
+            let totalQuestions = 0;
+            practiceHistory.forEach(p => totalQuestions += p.answered || 0);
+            mockHistory.forEach(m => totalQuestions += m.answered || 0);
+            
+            let totalScore = 0;
+            let scoreCount = 0;
+            practiceHistory.forEach(p => { totalScore += p.score || 0; scoreCount++; });
+            mockHistory.forEach(m => { totalScore += m.avgConfidence || 0; scoreCount++; });
+            const avgScore = scoreCount > 0 ? Math.round(totalScore / scoreCount) : 0;
+            
+            document.getElementById('statInterviews').textContent = totalInterviews;
+            document.getElementById('statQuestions').textContent = totalQuestions;
+            document.getElementById('statAvgScore').textContent = avgScore;
+        }
+        
+        // Display skills
+        function displaySkills(skills) {
+            const skillsList = document.getElementById('skillsList');
+            if (!skills || skills.length === 0) {
+                skillsList.innerHTML = '<p style="color: #666; font-size: 0.85rem;">No skills added yet. Add your skills above!</p>';
+                return;
+            }
+            
+            skillsList.innerHTML = skills.map(skill => `
+                <div class="skill-tag">
+                    ${skill}
+                    <i class="fas fa-times" onclick="removeSkill('${skill}')"></i>
+                </div>
+            `).join('');
+        }
+        
+        // Add skill
+        function addSkill() {
+            const newSkillInput = document.getElementById('newSkill');
+            const skill = newSkillInput.value.trim();
+            
+            if (!skill) {
+                showToast('Please enter a skill', 'error');
+                return;
+            }
+            
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const skills = user.skills || [];
+            
+            if (skills.includes(skill)) {
+                showToast('Skill already exists', 'error');
+                return;
+            }
+            
+            skills.push(skill);
+            user.skills = skills;
+            localStorage.setItem('user', JSON.stringify(user));
+            
+            displaySkills(skills);
+            newSkillInput.value = '';
+            showToast('Skill added successfully', 'success');
+        }
+        
+        // Remove skill
+        function removeSkill(skill) {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const skills = user.skills || [];
+            const updatedSkills = skills.filter(s => s !== skill);
+            user.skills = updatedSkills;
+            localStorage.setItem('user', JSON.stringify(user));
+            displaySkills(updatedSkills);
+            showToast('Skill removed', 'success');
+        }
+        
+        // Save profile changes
+        document.getElementById('profileForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            
+            user.fullName = document.getElementById('fullName').value;
+            user.name = document.getElementById('fullName').value;
+            user.email = document.getElementById('email').value;
+            user.phone = document.getElementById('phone').value;
+            user.dob = document.getElementById('dob').value;
+            user.bio = document.getElementById('bio').value;
+            user.experienceLevel = document.getElementById('experienceLevel').value;
+            
+            if (!user.joinedDate) {
+                user.joinedDate = new Date().toISOString();
+            }
+            
+            localStorage.setItem('user', JSON.stringify(user));
+            
+            // Update display
+            document.getElementById('profileName').textContent = user.fullName;
+            document.getElementById('profileEmail').textContent = user.email;
+            
+            showToast('Profile updated successfully!', 'success');
+        });
+        
+        // Change password
+        document.getElementById('passwordForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (!currentPassword || !newPassword || !confirmPassword) {
+                showToast('Please fill all password fields', 'error');
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                showToast('New passwords do not match', 'error');
+                return;
+            }
+            
+            if (newPassword.length < 6) {
+                showToast('Password must be at least 6 characters', 'error');
+                return;
+            }
+            
+            // In a real app, verify current password with backend
+            showToast('Password changed successfully!', 'success');
+            
+            // Clear password fields
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+        });
+        
+        // Avatar functions
+        function openAvatarModal() {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const avatarUrl = user.avatar || '';
+            document.getElementById('avatarPreview').src = avatarUrl;
+            document.getElementById('avatarModal').style.display = 'flex';
+        }
+        
+        function closeAvatarModal() {
+            document.getElementById('avatarModal').style.display = 'none';
+        }
+        
+        function updateAvatar() {
+            const color = document.getElementById('avatarColor').value.replace('#', '');
+            const initials = document.getElementById('avatarInitials').value.toUpperCase();
+            
+            if (!initials) {
+                showToast('Please enter initials', 'error');
+                return;
+            }
+            
+            const avatarUrl = `https://ui-avatars.com/api/?background=${color}&color=fff&name=${initials}`;
+            
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            user.avatar = avatarUrl;
+            localStorage.setItem('user', JSON.stringify(user));
+            
+            document.getElementById('profileAvatar').src = avatarUrl;
+            closeAvatarModal();
+            showToast('Profile picture updated!', 'success');
+        }
+        
+        // Delete account
+        function openDeleteModal() {
+            document.getElementById('deleteModal').style.display = 'flex';
+        }
+        
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').style.display = 'none';
+        }
+        
+        function deleteAccount() {
+            // Clear all user data
+            localStorage.removeItem('user');
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('interviewHistory');
+            localStorage.removeItem('mockInterviewHistory');
+            localStorage.removeItem('currentPracticeProgress');
+            localStorage.removeItem('currentMockProgress');
+            
+            showToast('Account deleted successfully', 'success');
+            
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 1500);
+        }
+        
+        // Toast notification
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            const icon = type === 'success' ? '✅' : (type === 'error' ? '❌' : 'ℹ️');
+            toast.innerHTML = `${icon} ${message}`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+        
+        // Initialize
+        loadUserData();
+        
+        // Close modals when clicking outside
+        window.onclick = (event) => {
+            if (event.target === document.getElementById('avatarModal')) {
+                closeAvatarModal();
+            }
+            if (event.target === document.getElementById('deleteModal')) {
+                closeDeleteModal();
+            }
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Remote Interview Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #F5F7FA;
+            min-height: 100vh;
+        }
+
+        /* Navigation Bar */
+        .navbar {
+            background: #23465B;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 50px;
+        }
+
+        .logo img {
+            height: 40px;
+            object-fit: contain;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 35px;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: #C6C6C6;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Welcome Section */
+        .welcome-section {
+            background: linear-gradient(135deg, #23465B 0%, #2F5673 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+        }
+
+        .welcome-text h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .welcome-text p {
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+
+        .welcome-stats {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .welcome-stat {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 0.8rem 1.5rem;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        .welcome-stat .number {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .welcome-stat .label {
+            font-size: 0.75rem;
+            opacity: 0.8;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-icon {
+            width: 55px;
+            height: 55px;
+            background: linear-gradient(135deg, #23465B 0%, #2F5673 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .stat-info h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #23465B;
+        }
+
+        .stat-info p {
+            color: #666;
+            font-size: 0.85rem;
+        }
+
+        /* Charts Row */
+        .charts-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .chart-card h3 {
+            color: #23465B;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        canvas {
+            max-height: 250px;
+            width: 100%;
+        }
+
+        /* Category Performance */
+        .category-performance {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .category-performance h3 {
+            color: #23465B;
+            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .category-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .category-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .category-name {
+            width: 150px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .progress-bar-container {
+            flex: 1;
+            background: #e0e0e0;
+            border-radius: 10px;
+            height: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #23465B, #2F5673);
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.5s;
+        }
+
+        .category-score {
+            width: 60px;
+            text-align: right;
+            font-weight: 600;
+            color: #23465B;
+        }
+
+        /* Recent Activity */
+        .recent-activity {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .recent-activity h3 {
+            color: #23465B;
+            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+
+        .activity-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .activity-icon {
+            width: 45px;
+            height: 45px;
+            background: #e9ecef;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .activity-details {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .activity-meta {
+            font-size: 0.75rem;
+            color: #666;
+            margin-top: 0.25rem;
+        }
+
+        .activity-score {
+            font-weight: 700;
+            color: #23465B;
+        }
+
+        .confidence-badge {
+            padding: 0.25rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .confidence-high {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .confidence-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .confidence-low {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 30px;
+            background: #2F5673;
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .footer a {
+            color: #C6C6C6;
+            margin: 0 10px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 15px;
+            }
+            
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 15px;
+            }
+            
+            .welcome-section {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .welcome-stats {
+                justify-content: center;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .charts-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .category-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .category-name {
+                width: 100%;
+            }
+            
+            .progress-bar-container {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <div class="navbar">
+        <div class="logo">
+            <img src="logo.png" alt="Logo">
+        </div>
+        <div class="nav-links">
+            <a href="home.html">Home</a>
+            <a href="practice.html">Practice</a>
+            <a href="mockinterview.html">Mock Interview</a>
+            <a href="dashboard.html" class="active">Dashboard</a>
+            <a href="profile.html">Profile</a>
+            <a href="login.html">Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Welcome Section -->
+        <div class="welcome-section">
+            <div class="welcome-text">
+                <h1 id="welcomeName">Welcome back, John! 👋</h1>
+                <p>Track your interview preparation journey and improve every day</p>
+            </div>
+            <div class="welcome-stats">
+                <div class="welcome-stat">
+                    <div class="number" id="totalInterviews">0</div>
+                    <div class="label">Total Interviews</div>
+                </div>
+                <div class="welcome-stat">
+                    <div class="number" id="avgScore">0</div>
+                    <div class="label">Avg. Score</div>
+                </div>
+                <div class="welcome-stat">
+                    <div class="number" id="streakDays">0</div>
+                    <div class="label">Day Streak</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-microphone-alt"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="practiceCount">0</h3>
+                    <p>Practice Sessions</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-video"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="mockCount">0</h3>
+                    <p>Mock Interviews</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="questionsAnswered">0</h3>
+                    <p>Questions Answered</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="totalHours">0</h3>
+                    <p>Total Hours</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="charts-row">
+            <div class="chart-card">
+                <h3><i class="fas fa-chart-line"></i> Performance Trend</h3>
+                <canvas id="performanceChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3><i class="fas fa-chart-pie"></i> Interview Distribution</h3>
+                <canvas id="distributionChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Category Performance -->
+        <div class="category-performance">
+            <h3><i class="fas fa-chart-simple"></i> Category Performance</h3>
+            <div class="category-list" id="categoryPerformanceList">
+                <!-- Category performance will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="recent-activity">
+            <h3><i class="fas fa-history"></i> Recent Activity</h3>
+            <div class="activity-list" id="recentActivityList">
+                <!-- Recent activities will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>© 2026 Remote Interview Practice Portal</p>
+        <div>
+            <a href="#">About</a>
+            <a href="#">Help Center</a>
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms</a>
+        </div>
+    </div>
+
+    <script>
+        // Sample Data Structure (will be populated from localStorage)
+        let practiceHistory = [];
+        let mockHistory = [];
+
+        // Load data from localStorage
+        function loadData() {
+            practiceHistory = JSON.parse(localStorage.getItem('interviewHistory') || '[]');
+            mockHistory = JSON.parse(localStorage.getItem('mockInterviewHistory') || '[]');
+            
+            // Also load from practice progress
+            const practiceProgress = localStorage.getItem('currentPracticeProgress');
+            if (practiceProgress) {
+                const progress = JSON.parse(practiceProgress);
+                // Count completed answers
+                const completedAnswers = progress.answers?.filter(a => a !== null).length || 0;
+                if (completedAnswers > 0 && !practiceHistory.some(p => p.id === progress.timestamp)) {
+                    // Calculate score for this practice session
+                    let totalScore = 0;
+                    let answeredCount = 0;
+                    if (progress.answers) {
+                        progress.answers.forEach(answer => {
+                            if (answer) {
+                                answeredCount++;
+                                // Simple scoring based on answer length
+                                const wordCount = answer.split(/\s+/).length;
+                                let score = 0;
+                                if (wordCount < 30) score = 30;
+                                else if (wordCount < 80) score = 60;
+                                else score = 85;
+                                totalScore += score;
+                            }
+                        });
+                    }
+                    const avgScore = answeredCount > 0 ? Math.round(totalScore / answeredCount) : 0;
+                    
+                    practiceHistory.unshift({
+                        id: progress.timestamp,
+                        date: new Date(progress.timestamp).toISOString(),
+                        category: progress.categoryId,
+                        score: avgScore,
+                        totalQuestions: progress.questions?.length || 0,
+                        answered: answeredCount,
+                        type: 'practice'
+                    });
+                    localStorage.setItem('interviewHistory', JSON.stringify(practiceHistory));
+                }
+            }
+        }
+
+        // Get user name
+        function getUserName() {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            return user.name || 'Guest';
+        }
+
+        // Calculate statistics
+        function calculateStats() {
+            const totalPractice = practiceHistory.length;
+            const totalMock = mockHistory.length;
+            const totalInterviews = totalPractice + totalMock;
+            
+            let totalScore = 0;
+            let totalQuestions = 0;
+            practiceHistory.forEach(p => { totalScore += p.score || 0; totalQuestions += p.answered || 0; });
+            mockHistory.forEach(m => { 
+                totalScore += m.avgConfidence || 0; 
+                totalQuestions += m.answered || 0;
+            });
+            
+            const avgScore = totalInterviews > 0 ? Math.round(totalScore / totalInterviews) : 0;
+            
+            // Calculate total hours (assuming 2 min per question on average)
+            const totalMinutes = totalQuestions * 2;
+            const totalHours = (totalMinutes / 60).toFixed(1);
+            
+            // Calculate streak (simplified - based on recent activity)
+            let streak = 0;
+            const today = new Date().toDateString();
+            const allActivities = [...practiceHistory, ...mockHistory].sort((a, b) => new Date(b.date) - new Date(a.date));
+            if (allActivities.length > 0) {
+                const lastActivityDate = new Date(allActivities[0].date).toDateString();
+                if (lastActivityDate === today) streak = 1;
+            }
+            
+            return {
+                totalInterviews,
+                totalPractice,
+                totalMock,
+                avgScore,
+                totalQuestions,
+                totalHours,
+                streak
+            };
+        }
+
+        // Update statistics display
+        function updateStats() {
+            const stats = calculateStats();
+            document.getElementById('totalInterviews').textContent = stats.totalInterviews;
+            document.getElementById('practiceCount').textContent = stats.totalPractice;
+            document.getElementById('mockCount').textContent = stats.totalMock;
+            document.getElementById('avgScore').textContent = stats.avgScore;
+            document.getElementById('questionsAnswered').textContent = stats.totalQuestions;
+            document.getElementById('totalHours').textContent = stats.totalHours;
+            document.getElementById('streakDays').textContent = stats.streak;
+            document.getElementById('welcomeName').textContent = `Welcome back, ${getUserName()}! 👋`;
+        }
+
+        // Prepare performance data for chart
+        function getPerformanceData() {
+            const last7Days = [];
+            const scores = [];
+            
+            // Get last 7 days
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                last7Days.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+                
+                // Find score for this day
+                let dayScore = 0;
+                let dayCount = 0;
+                
+                [...practiceHistory, ...mockHistory].forEach(item => {
+                    const itemDate = new Date(item.date).toDateString();
+                    if (itemDate === date.toDateString()) {
+                        dayScore += item.score || item.avgConfidence || 0;
+                        dayCount++;
+                    }
+                });
+                
+                scores.push(dayCount > 0 ? Math.round(dayScore / dayCount) : 0);
+            }
+            
+            return { labels: last7Days, scores };
+        }
+
+        // Initialize performance chart
+        let performanceChart;
+        function initPerformanceChart() {
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+            const data = getPerformanceData();
+            
+            performanceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: 'Average Score',
+                        data: data.scores,
+                        borderColor: '#23465B',
+                        backgroundColor: 'rgba(35, 70, 91, 0.1)',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#23465B',
+                        pointBorderColor: 'white',
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `Score: ${context.raw}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: 'Score (%)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize distribution chart
+        let distributionChart;
+        function initDistributionChart() {
+            const ctx = document.getElementById('distributionChart').getContext('2d');
+            
+            const categories = {
+                'Technical': 0,
+                'HR': 0,
+                'Aptitude': 0,
+                'Mock Interview': 0
+            };
+            
+            practiceHistory.forEach(p => {
+                if (p.category === 'Technical Interview') categories['Technical']++;
+                else if (p.category === 'HR Interview') categories['HR']++;
+                else if (p.category === 'Aptitude Test') categories['Aptitude']++;
+            });
+            
+            mockHistory.forEach(m => {
+                if (m.category === 'Technical Mock Interview') categories['Technical']++;
+                else if (m.category === 'HR Mock Interview') categories['HR']++;
+                else categories['Mock Interview']++;
+            });
+            
+            const filteredCategories = Object.entries(categories).filter(([_, value]) => value > 0);
+            
+            distributionChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: filteredCategories.map(([key]) => key),
+                    datasets: [{
+                        data: filteredCategories.map(([_, value]) => value),
+                        backgroundColor: ['#23465B', '#2F5673', '#3A6B8C', '#4A7C9E'],
+                        borderWidth: 0,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update category performance
+        function updateCategoryPerformance() {
+            const categories = {
+                'Technical': { total: 0, count: 0, maxScore: 0 },
+                'HR': { total: 0, count: 0, maxScore: 0 },
+                'Aptitude': { total: 0, count: 0, maxScore: 0 },
+                'Mock Interview': { total: 0, count: 0, maxScore: 0 }
+            };
+            
+            practiceHistory.forEach(p => {
+                let cat = '';
+                if (p.category === 'Technical Interview') cat = 'Technical';
+                else if (p.category === 'HR Interview') cat = 'HR';
+                else if (p.category === 'Aptitude Test') cat = 'Aptitude';
+                
+                if (cat) {
+                    categories[cat].total += p.score || 0;
+                    categories[cat].count++;
+                    categories[cat].maxScore = Math.max(categories[cat].maxScore, p.score || 0);
+                }
+            });
+            
+            mockHistory.forEach(m => {
+                categories['Mock Interview'].total += m.avgConfidence || 0;
+                categories['Mock Interview'].count++;
+                categories['Mock Interview'].maxScore = Math.max(categories['Mock Interview'].maxScore, m.avgConfidence || 0);
+            });
+            
+            const categoryList = document.getElementById('categoryPerformanceList');
+            categoryList.innerHTML = Object.entries(categories).map(([name, data]) => {
+                const avgScore = data.count > 0 ? Math.round(data.total / data.count) : 0;
+                const percentage = avgScore;
+                return `
+                    <div class="category-item">
+                        <div class="category-name">${name}</div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill" style="width: ${percentage}%"></div>
+                        </div>
+                        <div class="category-score">${avgScore}%</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Update recent activity
+        function updateRecentActivity() {
+            const allActivities = [
+                ...practiceHistory.map(p => ({ ...p, type: 'practice', dateObj: new Date(p.date) })),
+                ...mockHistory.map(m => ({ ...m, type: 'mock', dateObj: new Date(m.date) }))
+            ].sort((a, b) => b.dateObj - a.dateObj).slice(0, 10);
+            
+            const activityList = document.getElementById('recentActivityList');
+            
+            if (allActivities.length === 0) {
+                activityList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-calendar-alt"></i>
+                        <p>No activity yet. Start practicing to see your progress!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            activityList.innerHTML = allActivities.map(activity => {
+                const isMock = activity.type === 'mock';
+                const score = isMock ? activity.avgConfidence : activity.score;
+                const scoreLabel = isMock ? 'Confidence' : 'Score';
+                const icon = isMock ? '<i class="fas fa-video"></i>' : '<i class="fas fa-microphone-alt"></i>';
+                const categoryName = activity.category || 'Unknown';
+                
+                let confidenceClass = '';
+                let confidenceText = '';
+                if (isMock && activity.confidences) {
+                    const avgConf = activity.avgConfidence;
+                    if (avgConf >= 70) confidenceClass = 'confidence-high';
+                    else if (avgConf >= 40) confidenceClass = 'confidence-medium';
+                    else confidenceClass = 'confidence-low';
+                    confidenceText = avgConf >= 70 ? 'High' : (avgConf >= 40 ? 'Medium' : 'Low');
+                }
+                
+                return `
+                    <div class="activity-item">
+                        <div class="activity-icon" style="background: rgba(35, 70, 91, 0.1);">
+                            ${icon}
+                        </div>
+                        <div class="activity-details">
+                            <div class="activity-title">${isMock ? 'Mock Interview' : 'Practice Session'} - ${categoryName}</div>
+                            <div class="activity-meta">
+                                ${activity.dateObj.toLocaleDateString()} at ${activity.dateObj.toLocaleTimeString()}
+                                ${isMock && confidenceText ? `<span class="confidence-badge ${confidenceClass}" style="margin-left: 0.5rem;">${confidenceText} Confidence</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="activity-score">
+                            ${scoreLabel}: ${score || 0}%
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Refresh all dashboard data
+        function refreshDashboard() {
+            loadData();
+            updateStats();
+            updateCategoryPerformance();
+            updateRecentActivity();
+            
+            if (performanceChart) {
+                const newData = getPerformanceData();
+                performanceChart.data.labels = newData.labels;
+                performanceChart.data.datasets[0].data = newData.scores;
+                performanceChart.update();
+            } else {
+                initPerformanceChart();
+            }
+            
+            if (distributionChart) {
+                distributionChart.destroy();
+            }
+            initDistributionChart();
+        }
+
+        // Initial load
+        refreshDashboard();
+        
+        // Optional: Auto-refresh every 30 seconds
+        // setInterval(refreshDashboard, 30000);
+    </script>
+</body>
+</html>
