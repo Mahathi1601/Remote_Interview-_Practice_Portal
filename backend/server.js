@@ -6,14 +6,17 @@ const connectDB = require('./config/database');
 // Load env vars
 dotenv.config();
 
-// Connect to database
-connectDB();
-
 const app = express();
 
 // Body parser
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Request logger
+app.use((req, res, next) => {
+    console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+    next();
+});
 
 // Enable CORS
 app.use(cors());
@@ -36,12 +39,26 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5000;
 
-const server = app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+const startServer = async () => {
+    try {
+        // Connect to database first
+        await connectDB();
+        
+        // Only then start listening
+        const server = app.listen(PORT, () => {
+            console.log(`🚀 Server running on port ${PORT}`);
+        });
 
-// Handle unhandled promise rejections
-process.on('unhandledRejection', (err, promise) => {
-    console.log(`Error: ${err.message}`);
-    server.close(() => process.exit(1));
-});
+        // Handle unhandled promise rejections
+        process.on('unhandledRejection', (err, promise) => {
+            console.log(`Error: ${err.message}`);
+            server.close(() => process.exit(1));
+        });
+    } catch (error) {
+        console.error('Failed to start server:', error.message);
+        process.exit(1);
+    }
+};
+
+startServer();
+

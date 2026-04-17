@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { protect } = require('../middleware/auth');
 const PracticeQuestion = require('../models/PracticeQuestion');
+const User = require('../models/User');
 
 // @route   GET /api/practice/questions
 // @desc    Get practice questions with filters
@@ -23,6 +24,7 @@ router.get('/questions', protect, async (req, res) => {
             data: questions
         });
     } catch (error) {
+        console.error('Error fetching questions:', error);
         res.status(500).json({
             success: false,
             message: 'Server error'
@@ -68,8 +70,19 @@ router.post('/questions', protect, async (req, res) => {
             });
         }
         
+        // Auto-map alternative field names
+        const questionData = { ...req.body };
+        if (!questionData.question && questionData.questionText) questionData.question = questionData.questionText;
+        if (!questionData.type && questionData.categoryId) questionData.type = questionData.categoryId;
+        if (!questionData.sampleAnswer && questionData.idealAnswer) questionData.sampleAnswer = questionData.idealAnswer;
+        
+        // Normalize difficulty
+        if (questionData.difficulty === 'Easy') questionData.difficulty = 'beginner';
+        if (questionData.difficulty === 'Medium') questionData.difficulty = 'intermediate';
+        if (questionData.difficulty === 'Hard') questionData.difficulty = 'advanced';
+
         const question = await PracticeQuestion.create({
-            ...req.body,
+            ...questionData,
             createdBy: req.user.id
         });
         

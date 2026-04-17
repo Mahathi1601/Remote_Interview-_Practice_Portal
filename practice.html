@@ -185,6 +185,11 @@
             <button class="filter-btn" data-type="behavioral">Behavioral</button>
             <button class="filter-btn" data-type="hr">HR</button>
             <button class="filter-btn" data-type="system-design">System Design</button>
+            <button class="filter-btn" data-type="aptitude">Aptitude</button>
+        </div>
+
+        <div id="questionStats" style="margin-bottom: 20px; color: #64748B; font-size: 14px;">
+            Showing 0 questions
         </div>
 
         <div class="questions-container" id="questionsContainer">
@@ -233,10 +238,23 @@
                 
                 if (data.success && data.data) {
                     allQuestions = data.data;
+                    
+                    // Check if a specific type was selected in home page
+                    const selectedType = localStorage.getItem('selectedInterviewType')?.toLowerCase();
+                    if (selectedType && selectedType !== 'all') {
+                        currentFilter = selectedType;
+                        // Update active button
+                        document.querySelectorAll('.filter-btn').forEach(btn => {
+                            btn.classList.toggle('active', btn.getAttribute('data-type') === currentFilter);
+                        });
+                        // Clear the selection so it doesn't persist forever
+                        localStorage.removeItem('selectedInterviewType');
+                    }
+                    
                     displayQuestions();
                 } else {
                     document.getElementById('questionsContainer').innerHTML = 
-                        '<div class="loading">No questions found. Please run the seed script.</div>';
+                        `<div class="loading">${data.message || 'No questions found. Please run the seed script.'}</div>`;
                 }
             } catch (error) {
                 console.error('Error:', error);
@@ -251,6 +269,10 @@
             if (currentFilter !== 'all') {
                 filteredQuestions = allQuestions.filter(q => q.type === currentFilter);
             }
+            
+            // Update stats
+            document.getElementById('questionStats').innerText = 
+                `Showing ${filteredQuestions.length} ${currentFilter === 'all' ? '' : currentFilter} questions (Total active: ${allQuestions.length})`;
             
             if (filteredQuestions.length === 0) {
                 document.getElementById('questionsContainer').innerHTML = 
