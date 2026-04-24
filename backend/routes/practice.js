@@ -1,22 +1,82 @@
 const express = require('express');
 const router = express.Router();
 const { protect } = require('../middleware/auth');
-const PracticeQuestion = require('../models/PracticeQuestion');
-const User = require('../models/User');
+const Question = require('../models/Question');
+const Category = require('../models/Category');
+const PracticeSession = require('../models/PracticeSession');
+const { generateFeedback } = require('../utils/feedbackGenerator');
 
-// @route   GET /api/practice/questions
-// @desc    Get practice questions with filters
-router.get('/questions', protect, async (req, res) => {
+// @route   GET /api/practice/status/:categoryId
+// @desc    Get unlocked level for a category
+router.get('/status/:categoryId', protect, async (req, res) => {
     try {
-        const { type, difficulty, limit = 10 } = req.query;
+        const userId = req.user.id;
+        const category = await Category.findById(req.params.categoryId);
         
-        const filter = { isActive: true };
-        if (type) filter.type = type;
-        if (difficulty) filter.difficulty = difficulty;
+        if (!category) {
+            return res.status(404).json({ success: false, message: 'Category not found' });
+        }
+
+        // Check L1 (Easy) qualification -> Unlock L2 (Medium)
+        const l1Qualified = await PracticeSession.findOne({
+            userId,
+            categoryName: category.name,
+            difficulty: 'Easy',
+            score: { $gte: 70 }
+        });
+
+        // Check L2 (Medium) qualification -> Unlock L3 (Hard)
+        const l2Qualified = await PracticeSession.findOne({
+            userId,
+            categoryName: category.name,
+            difficulty: 'Medium',
+            score: { $gte: 50 }
+        });
+
+        res.status(200).json({
+            success: true,
+            data: {
+                categoryName: category.name,
+                unlockedLevel: l2Qualified ? 3 : (l1Qualified ? 2 : 1),
+                thresholds: { easyToMedium: 70, mediumToHard: 50 },
+                levelStats: {
+                    l1Best: l1Qualified ? l1Qualified.score : 0,
+                    l2Best: l2Qualified ? l2Qualified.score : 0
+                }
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
+
+// @route   GET /api/practice/by-difficulty
+// @desc    Get questions by difficulty and category (with progression check)
+router.get('/by-difficulty', protect, async (req, res) => {
+    try {
+        const { difficulty, categoryId } = req.query;
+        const userId = req.user.id;
         
-        const questions = await PracticeQuestion.find(filter)
-            .limit(parseInt(limit))
-            .select('question type difficulty tags');
+        if (!categoryId) {
+            return res.status(400).json({ success: false, message: 'CategoryId is required' });
+        }
+
+        const category = await Category.findById(categoryId);
+        if (!category) return res.status(404).json({ success: false, message: 'Category not found' });
+
+        // Progression Check
+        if (difficulty === 'Medium') {
+            const qualified = await PracticeSession.findOne({ userId, categoryName: category.name, difficulty: 'Easy', score: { $gte: 70 } });
+            if (!qualified) return res.status(403).json({ success: false, message: 'Unlock Level 2 by scoring 70%+ in Level 1' });
+        }
+        
+        if (difficulty === 'Hard') {
+            const qualified = await PracticeSession.findOne({ userId, categoryName: category.name, difficulty: 'Medium', score: { $gte: 50 } });
+            if (!qualified) return res.status(403).json({ success: false, message: 'Unlock Level 3 by scoring 50%+ in Level 2' });
+        }
+        
+        const filter = { isActive: true, difficulty, categoryId };
+        const questions = await Question.find(filter).populate('categoryId', 'name').limit(20);
         
         res.status(200).json({
             success: true,
@@ -25,18 +85,17 @@ router.get('/questions', protect, async (req, res) => {
         });
     } catch (error) {
         console.error('Error fetching questions:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Server error'
-        });
+        res.status(500).json({ success: false, message: 'Server error' });
     }
 });
 
-// @route   GET /api/practice/questions/:id
-// @desc    Get single practice question with answer
-router.get('/questions/:id', protect, async (req, res) => {
+// @route   POST /api/practice/submit
+// @desc    Submit answer and get feedback
+router.post('/submit', protect, async (req, res) => {
     try {
-        const question = await PracticeQuestion.findById(req.params.id);
+        const { questionId, answer } = req.body;
+
+        const question = await Question.findById(questionId).populate('categoryId', 'name');
         
         if (!question) {
             return res.status(404).json({
@@ -44,106 +103,48 @@ router.get('/questions/:id', protect, async (req, res) => {
                 message: 'Question not found'
             });
         }
+
+        // Generate feedback and score
+        const { score, feedback } = generateFeedback(answer, question.keywords, question.difficulty);
         
+        // Apply scoring weights
+        const weights = { 'Easy': 1, 'Medium': 1.5, 'Hard': 2 };
+        const weight = weights[question.difficulty] || 1;
+        const weightedScore = Math.round(score * weight);
+
+        // Save session
+        const session = await PracticeSession.create({
+            userId: req.user.id,
+            questionId,
+            userAnswer: answer,
+            score: weightedScore, // Weighted for display, but for qualification check we might want raw score.
+                                  // Wait, if score is 100 on Easy, weighted is 100.
+                                  // If score is 100 on Hard, weighted is 200.
+                                  // For progression thresholds, we should probably check the raw 'score' 0-100 or weighted.
+                                  // Actually, thresholds are 70 and 50. I'll use raw 'score' (base 100) for qualification logic.
+                                  // Let's store raw score separately if needed, or just calculate from weighted.
+                                  // I'll keep it simple: threshold checks against weightedScore / weight.
+            feedback,
+            difficulty: question.difficulty,
+            categoryName: question.categoryId.name
+        });
+
+        // Re-calculate raw score for internal check
+        const rawScore = score; 
+
         res.status(200).json({
             success: true,
-            data: question
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: 'Server error'
-        });
-    }
-});
-
-// @route   POST /api/practice/questions (Admin only)
-// @desc    Add new practice question
-router.post('/questions', protect, async (req, res) => {
-    try {
-        const user = await User.findById(req.user.id);
-        
-        if (user.role !== 'admin') {
-            return res.status(403).json({
-                success: false,
-                message: 'Not authorized'
-            });
-        }
-        
-        // Auto-map alternative field names
-        const questionData = { ...req.body };
-        if (!questionData.question && questionData.questionText) questionData.question = questionData.questionText;
-        if (!questionData.type && questionData.categoryId) questionData.type = questionData.categoryId;
-        if (!questionData.sampleAnswer && questionData.idealAnswer) questionData.sampleAnswer = questionData.idealAnswer;
-        
-        // Normalize difficulty
-        if (questionData.difficulty === 'Easy') questionData.difficulty = 'beginner';
-        if (questionData.difficulty === 'Medium') questionData.difficulty = 'intermediate';
-        if (questionData.difficulty === 'Hard') questionData.difficulty = 'advanced';
-
-        const question = await PracticeQuestion.create({
-            ...questionData,
-            createdBy: req.user.id
-        });
-        
-        res.status(201).json({
-            success: true,
-            data: question
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: 'Server error'
-        });
-    }
-});
-
-// Seed initial questions
-router.post('/seed', protect, async (req, res) => {
-    try {
-        const user = await User.findById(req.user.id);
-        
-        if (user.role !== 'admin') {
-            return res.status(403).json({
-                success: false,
-                message: 'Not authorized'
-            });
-        }
-        
-        const initialQuestions = [
-            {
-                question: "Explain the difference between let, const, and var in JavaScript.",
-                type: "technical",
-                difficulty: "beginner",
-                sampleAnswer: "var is function-scoped, while let and const are block-scoped. var can be redeclared and updated, let can be updated but not redeclared, and const cannot be updated or redeclared.",
-                tips: ["Mention hoisting", "Discuss temporal dead zone", "Give practical examples"],
-                tags: ["JavaScript", "ES6"]
-            },
-            {
-                question: "Tell me about a time you faced a conflict in your team and how you resolved it.",
-                type: "behavioral",
-                difficulty: "intermediate",
-                sampleAnswer: "In my previous role, two team members disagreed on the technical approach...",
-                tips: ["Use STAR method", "Focus on positive outcome", "Show leadership skills"],
-                tags: ["Teamwork", "Conflict Resolution"]
-            },
-            {
-                question: "How do you stay updated with the latest technologies?",
-                type: "hr",
-                difficulty: "beginner",
-                sampleAnswer: "I follow tech blogs, participate in online courses, attend meetups...",
-                tips: ["Show initiative", "Mention specific resources", "Demonstrate continuous learning"],
-                tags: ["Learning", "Professional Development"]
+            data: {
+                score: weightedScore,
+                rawScore, // Send raw score for frontend to handle unlocking
+                feedback,
+                idealAnswer: question.idealAnswer,
+                tips: question.tips,
+                difficulty: question.difficulty
             }
-        ];
-        
-        await PracticeQuestion.insertMany(initialQuestions);
-        
-        res.status(200).json({
-            success: true,
-            message: 'Questions seeded successfully'
         });
     } catch (error) {
+        console.error('Error submitting answer:', error);
         res.status(500).json({
             success: false,
             message: 'Server error'

@@ -24,8 +24,11 @@ app.use(cors());
 // Mount routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/profile', require('./routes/profile'));
-app.use('/api/interview', require('./routes/interview'));
 app.use('/api/practice', require('./routes/practice'));
+app.use('/api/mock', require('./routes/mock'));
+app.use('/api/dashboard', require('./routes/dashboard'));
+app.use('/api/categories', require('./routes/categories'));
+app.use('/api/questions', require('./routes/questions'));
 
 // Error handler
 app.use((err, req, res, next) => {
@@ -41,10 +44,10 @@ const PORT = process.env.PORT || 5000;
 
 const startServer = async () => {
     try {
-        // Connect to database first
+        // Connect to database with retry logic
         await connectDB();
         
-        // Only then start listening
+        // Start listening
         const server = app.listen(PORT, () => {
             console.log(`🚀 Server running on port ${PORT}`);
         });
@@ -61,4 +64,3 @@ const startServer = async () => {
 };
 
 startServer();
-

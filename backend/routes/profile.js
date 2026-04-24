@@ -51,26 +51,26 @@ router.put('/', protect, async (req, res) => {
     }
 });
 
-// @route   POST /api/profile/skills
-// @desc    Add skills to profile
-router.post('/skills', protect, async (req, res) => {
+// @route   PUT /api/profile/password
+// @desc    Update password
+router.put('/password', protect, async (req, res) => {
     try {
-        const { skills } = req.body;
+        const { password } = req.body;
         
-        if (!skills || !Array.isArray(skills)) {
+        if (!password || password.length < 6) {
             return res.status(400).json({
                 success: false,
-                message: 'Skills must be an array'
+                message: 'Password must be at least 6 characters'
             });
         }
 
         const user = await User.findById(req.user.id);
-        user.profile.skills = [...new Set([...user.profile.skills, ...skills])];
+        user.password = password;
         await user.save();
 
         res.status(200).json({
             success: true,
-            data: user.profile.skills
+            message: 'Password updated successfully'
         });
     } catch (error) {
         res.status(500).json({

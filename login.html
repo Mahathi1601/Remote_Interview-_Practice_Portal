@@ -32,7 +32,11 @@ body{
     font-size:20px;
     font-weight:600;
     height : 50px;
+}
 
+.logo img{
+    height:40px;
+    object-fit:contain;
 }
 
 .nav-links{
@@ -57,6 +61,7 @@ body{
     justify-content:center;
     padding:60px 20px;
     gap:60px;
+    min-height: 70vh;
 }
 
 .left{
@@ -102,6 +107,7 @@ body{
 
 .input-group{
     margin-bottom:18px;
+    position: relative;
 }
 
 .input-group label{
@@ -119,6 +125,15 @@ body{
     outline:none;
 }
 
+.validation-msg {
+    font-size: 11px;
+    margin-top: 4px;
+    display: none;
+}
+
+.validation-msg.error { color: #dc3545; display: block; }
+.validation-msg.success { color: #28a745; display: block; }
+
 .btn{
     width:100%;
     padding:14px;
@@ -131,7 +146,12 @@ body{
     transition:0.3s;
 }
 
-.btn:hover{
+.btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+.btn:hover:not(:disabled){
     background:#2F5673;
 }
 
@@ -145,6 +165,52 @@ body{
 .hidden{
     display:none;
 }
+
+/* Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal {
+    background: white;
+    width: 400px;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.modal h2 {
+    color: #23465B;
+    margin-bottom: 20px;
+}
+
+/* Loading Spinner */
+.loader {
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #23465B;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    animation: spin 1s linear infinite;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 10px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(3600deg); }
+}
+
 .footer{
     margin-top:30px;
     background:#2F5673;
@@ -160,24 +226,11 @@ body{
     font-size:14px;
 }
 
-.logo img{
-    height:40px;
-    object-fit:contain;
-}
 .extra a{
-    color:#64748B;
+    color:#23465B;
     text-decoration:none;
     font-weight:500;
-    transition:0.3s;
 }
-
-.extra a:hover{
-    color:#23465B; 
-}
-.extra{
-    cursor:pointer;   
-}
-
 </style>
 </head>
 
@@ -185,73 +238,99 @@ body{
 
 <div class="navbar">
     <div class="logo">
-        <img src="logo.png">
+        <img src="logo.png" alt="Logo">
     </div>
-
     <div class="nav-links">
-        <!--
-            <a href="home.html">Home</a>
-            <a href="practice.html" class="active">Practice</a>
-            <a href="mockinterview.html">Mock Interview</a>
-            <a href="dashboard.html">Dashboard</a>
-            <a href="profile.html">Profile</a>
-    -->
-            <a href="login.html">Login</a>
-        </div>
+        <a href="login.html">Login</a>
+    </div>
 </div>
 
 <div class="container">
-
     <div class="left">
         <h1>Remote Interview Practice Portal</h1>
         <p>A platform that helps users practice interviews, improve skills, and build confidence anytime, anywhere.</p>
     </div>
 
     <div class="auth-box">
-
         <div class="tabs">
             <span class="tab active" onclick="showLogin()">Login</span>
             <span class="tab" onclick="showRegister()">Register</span>
         </div>
 
+        <!-- Login Form -->
         <div id="loginForm">
             <div class="input-group">
                 <label>EMAIL</label>
-                <input type="email" id="loginEmail" placeholder="Enter email">
+                <input type="email" id="loginEmail" placeholder="Enter email" oninput="validateEmail(this)">
+                <div class="validation-msg" id="loginEmailMsg">Invalid email format</div>
             </div>
-
             <div class="input-group">
                 <label>PASSWORD</label>
                 <input type="password" id="loginPassword" placeholder="Enter password">
             </div>
-
             <button class="btn" id="loginBtn">Login</button>
-            <div class="extra"><a href="forgot-password.html">Trouble signing in?</a></div>
+            <div class="extra"><a href="#" onclick="openForgotModal()">Forgot Password?</a></div>
         </div>
 
+        <!-- Register Form -->
         <div id="registerForm" class="hidden">
-
             <div class="input-group">
                 <label>FULL NAME</label>
                 <input type="text" id="registerName" placeholder="Enter name">
             </div>
-
             <div class="input-group">
                 <label>EMAIL</label>
-                <input type="email" id="registerEmail" placeholder="Enter email">
+                <input type="email" id="registerEmail" placeholder="Enter email" oninput="validateEmail(this)">
+                <div class="validation-msg" id="registerEmailMsg">Invalid email format</div>
             </div>
-
             <div class="input-group">
                 <label>PASSWORD</label>
                 <input type="password" id="registerPassword" placeholder="Min 6 characters">
             </div>
-
             <button class="btn" id="registerBtn">Create Account</button>
-            <div class="extra" onclick="showLogin()">Already have an account?</div>
+            <div class="extra" onclick="showLogin()">Already have an account? <span style="color:#23465B; font-weight:500; cursor:pointer">Login</span></div>
+        </div>
+    </div>
+</div>
+
+<!-- Forgot Password Modal -->
+<div class="modal-overlay" id="forgotModal">
+    <div class="modal">
+        <h2 id="modalTitle">Forgot Password</h2>
+        <div id="forgotStep1">
+            <p style="font-size: 14px; color: #64748B; margin-bottom: 20px;">Enter your email to receive a 6-digit verification code.</p>
+            <div class="input-group">
+                <label>EMAIL</label>
+                <input type="email" id="forgotEmail" placeholder="Enter email">
+            </div>
+            <div style="display:flex; gap:10px">
+                <button class="btn" onclick="requestResetCode()">Send Code</button>
+                <button class="btn" style="background:#64748B" onclick="closeForgotModal()">Cancel</button>
+            </div>
         </div>
 
-    </div>
+        <div id="forgotStep2" class="hidden">
+            <p style="font-size: 14px; color: #64748B; margin-bottom: 20px;">Enter the 6-digit code sent to your email.</p>
+            <div class="input-group">
+                <label>VERIFICATION CODE</label>
+                <input type="text" id="verifyCode" maxlength="6" placeholder="123456">
+            </div>
+            <button class="btn" onclick="verifyCode()">Verify Code</button>
+        </div>
 
+        <div id="forgotStep3" class="hidden">
+            <p style="font-size: 14px; color: #64748B; margin-bottom: 20px;">Enter your new password.</p>
+            <div class="input-group">
+                <label>NEW PASSWORD</label>
+                <input type="password" id="newPassword" placeholder="Min 6 characters">
+            </div>
+            <div class="input-group">
+                <label>CONFIRM PASSWORD</label>
+                <input type="password" id="confirmPassword" placeholder="Confirm new password">
+            </div>
+            <button class="btn" onclick="resetPassword()">Reset Password</button>
+        </div>
+    </div>
 </div>
 
 <div class="footer">
@@ -265,10 +344,11 @@ body{
 </div>
 
 <script>
+const API_URL = 'http://localhost:5000/api';
+
 function showLogin(){
     document.getElementById("loginForm").classList.remove("hidden");
     document.getElementById("registerForm").classList.add("hidden");
-
     document.querySelectorAll(".tab")[0].classList.add("active");
     document.querySelectorAll(".tab")[1].classList.remove("active");
 }
@@ -276,23 +356,53 @@ function showLogin(){
 function showRegister(){
     document.getElementById("loginForm").classList.add("hidden");
     document.getElementById("registerForm").classList.remove("hidden");
-
     document.querySelectorAll(".tab")[1].classList.add("active");
     document.querySelectorAll(".tab")[0].classList.remove("active");
 }
 
-// BACKEND CONNECTION CODE
-const API_URL = 'http://localhost:5000/api';
+// Validation
+function validateEmail(input) {
+    const email = input.value;
+    const msgId = input.id + 'Msg';
+    const msg = document.getElementById(msgId);
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    if (email === "") {
+        msg.classList.remove('error', 'success');
+        return false;
+    }
+    
+    if (re.test(email)) {
+        msg.innerText = "Email format is valid";
+        msg.classList.remove('error');
+        msg.classList.add('success');
+        return true;
+    } else {
+        msg.innerText = "Invalid email format (needs @ and .domain)";
+        msg.classList.remove('success');
+        msg.classList.add('error');
+        return false;
+    }
+}
 
 // Login
 document.getElementById('loginBtn').addEventListener('click', async () => {
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
+    const btn = document.getElementById('loginBtn');
     
-    if (!email || !password) {
-        alert('Please enter email and password');
+    if (!validateEmail(document.getElementById('loginEmail'))) {
+        alert('Please enter a valid email');
         return;
     }
+    
+    if (!password) {
+        alert('Please enter password');
+        return;
+    }
+    
+    btn.disabled = true;
+    btn.innerHTML = '<span class="loader"></span> Logging in...';
     
     try {
         const response = await fetch(`${API_URL}/auth/login`, {
@@ -306,13 +416,15 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
         if (data.success) {
             localStorage.setItem('token', data.token);
             localStorage.setItem('user', JSON.stringify(data.user));
-            alert('Login successful!');
             window.location.href = 'home.html';
         } else {
             alert(data.message || 'Login failed');
         }
     } catch (error) {
-        alert('Cannot connect to server. Make sure backend is running on port 5000');
+        alert('Connection error. Check if backend is running.');
+    } finally {
+        btn.disabled = false;
+        btn.innerText = 'Login';
     }
 });
 
@@ -322,8 +434,8 @@ document.getElementById('registerBtn').addEventListener('click', async () => {
     const email = document.getElementById('registerEmail').value;
     const password = document.getElementById('registerPassword').value;
     
-    if (!name || !email || !password) {
-        alert('Please fill all fields');
+    if (!name || !validateEmail(document.getElementById('registerEmail')) || !password) {
+        alert('Please fill all fields correctly');
         return;
     }
     
@@ -344,18 +456,88 @@ document.getElementById('registerBtn').addEventListener('click', async () => {
         if (data.success) {
             alert('Registration successful! Please login.');
             showLogin();
-            // Clear form
-            document.getElementById('registerName').value = '';
-            document.getElementById('registerEmail').value = '';
-            document.getElementById('registerPassword').value = '';
         } else {
             alert(data.message || 'Registration failed');
         }
     } catch (error) {
-        alert('Cannot connect to server. Make sure backend is running on port 5000');
+        alert('Connection error');
     }
 });
-</script>
 
+// Forgot Password Modal Logic
+function openForgotModal() { document.getElementById('forgotModal').style.display = 'flex'; }
+function closeForgotModal() { document.getElementById('forgotModal').style.display = 'none'; resetForgotFlow(); }
+
+function resetForgotFlow() {
+    document.getElementById('forgotStep1').classList.remove('hidden');
+    document.getElementById('forgotStep2').classList.add('hidden');
+    document.getElementById('forgotStep3').classList.add('hidden');
+    document.getElementById('modalTitle').innerText = 'Forgot Password';
+}
+
+async function requestResetCode() {
+    const email = document.getElementById('forgotEmail').value;
+    if (!email) return alert('Email required');
+    
+    try {
+        const response = await fetch(`${API_URL}/auth/forgot-password`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
+        const data = await response.json();
+        if (data.success) {
+            alert('Reset code sent! (Check console for code)');
+            document.getElementById('forgotStep1').classList.add('hidden');
+            document.getElementById('forgotStep2').classList.remove('hidden');
+            document.getElementById('modalTitle').innerText = 'Verify Code';
+        } else { alert(data.message); }
+    } catch (e) { alert('Error: ' + e.message); }
+}
+
+async function verifyCode() {
+    const email = document.getElementById('forgotEmail').value;
+    const code = document.getElementById('verifyCode').value;
+    if (!code) return alert('Code required');
+    
+    try {
+        const response = await fetch(`${API_URL}/auth/verify-code`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, code })
+        });
+        const data = await response.json();
+        if (data.success) {
+            document.getElementById('forgotStep2').classList.add('hidden');
+            document.getElementById('forgotStep3').classList.remove('hidden');
+            document.getElementById('modalTitle').innerText = 'New Password';
+        } else { alert(data.message); }
+    } catch (e) { alert('Error'); }
+}
+
+async function resetPassword() {
+    const email = document.getElementById('forgotEmail').value;
+    const code = document.getElementById('verifyCode').value;
+    const password = document.getElementById('newPassword').value;
+    const confirm = document.getElementById('confirmPassword').value;
+    
+    if (password !== confirm) return alert('Passwords do not match');
+    if (password.length < 6) return alert('Password min 6 chars');
+    
+    try {
+        const response = await fetch(`${API_URL}/auth/reset-password`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, code, password })
+        });
+        const data = await response.json();
+        if (data.success) {
+            alert('Password reset successful!');
+            closeForgotModal();
+            showLogin();
+        } else { alert(data.message); }
+    } catch (e) { alert('Error'); }
+}
+</script>
 </body>
 </html>
