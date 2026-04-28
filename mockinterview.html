@@ -1054,6 +1054,13 @@
     </div>
 
     <script>
+        // API Configuration
+        const API_URL = 'http://localhost:5000/api';
+        const token = localStorage.getItem('token');
+
+        // Redirect to login if not authenticated
+        if (!token) window.location.href = 'login.html';
+
         // Mock Interview Questions Data
         const mockQuestionsData = {
             technical: {
@@ -1430,6 +1437,7 @@
         function completeInterview() {
             const answeredCount = recordings.filter(r => r !== null).length;
             const timeSpent = Math.floor((Date.now() - sessionStartTime) / 1000 / 60);
+            const timeSpentSeconds = Math.floor((Date.now() - sessionStartTime) / 1000);
             
             // Calculate average confidence
             let confidenceScores = confidences.map(c => {
@@ -1459,6 +1467,9 @@
             history.unshift(interviewResult);
             localStorage.setItem('mockInterviewHistory', JSON.stringify(history.slice(0, 20)));
             
+            // Save to Backend Database
+            saveMockInterviewToBackend(answeredCount, avgConfidence, timeSpentSeconds);
+            
             // Show modal
             finalScoreSpan.textContent = answeredCount;
             timeSpentSpan.textContent = `${timeSpent} min`;
@@ -1471,6 +1482,44 @@
             
             completionModal.style.display = 'flex';
             showToast(`Mock Interview completed! Average confidence: ${Math.round(avgConfidence)}%`, 'success');
+        }
+
+        // Save Mock Interview to Backend Database
+        async function saveMockInterviewToBackend(answeredCount, avgConfidence, duration) {
+            try {
+                const token = localStorage.getItem('token');
+                const payload = {
+                    interviewType: currentCategory.name,
+                    confidenceScore: Math.round(avgConfidence),
+                    overallScore: Math.round(avgConfidence),
+                    hasVideo: recordings.some(r => r !== null),
+                    videoDuration: duration,
+                    questionsAsked: currentQuestions.length,
+                    questionsCorrect: answeredCount,
+                    duration: duration,
+                    feedback: `Completed ${answeredCount} out of ${currentQuestions.length} questions`,
+                    strengths: [],
+                    improvementAreas: []
+                };
+
+                const response = await fetch(`${API_URL}/mock/submit`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    console.log('Mock interview saved to database:', data);
+                } else {
+                    console.error('Failed to save mock interview:', data.message);
+                }
+            } catch (error) {
+                console.error('Error saving mock interview to backend:', error);
+            }
         }
 
         // Go to Question

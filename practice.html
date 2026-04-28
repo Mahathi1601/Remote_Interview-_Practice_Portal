@@ -158,7 +158,20 @@
             opacity: 0.9;
         }
 
-        .footer { background: #2F5673; color: white; padding: 30px; text-align: center; margin-top: 50px; }
+        .footer {
+            margin-top: 30px;
+            background: #2F5673;
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .footer a {
+            color: #C6C6C6;
+            margin: 0 10px;
+            text-decoration: none;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -172,7 +185,7 @@
             <a href="mockinterview.html">Mock Interview</a>
             <a href="dashboard.html">Dashboard</a>
             <a href="profile.html">Profile</a>
-            <a href="#" onclick="logout()">Logout</a>
+            <a href="login.html">Logout</a>
         </div>
     </div>
 
@@ -209,7 +222,15 @@
         <div id="questionsContainer" class="questions-container"></div>
     </div>
 
-    <div class="footer"><p>© 2026 Remote Interview Practice Portal</p></div>
+    <div class="footer">
+        <p>© 2026 Remote Interview Practice Portal</p>
+        <div>
+            <a href="#">About</a>
+            <a href="#">Help Center</a>
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms</a>
+        </div>
+    </div>
 
     <script>
         const API_URL = 'http://localhost:5000/api';
@@ -303,6 +324,8 @@
                 const data = await res.json();
                 if (data.success) {
                     const status = data.data;
+                    const stats = status.levelStats;
+                    
                     // Reset visuals
                     ['Easy', 'Medium', 'Hard'].forEach(l => {
                         const node = document.getElementById(`node-${l}`);
@@ -310,8 +333,10 @@
                         node.innerHTML = l === 'Easy' ? '1' : (l === 'Medium' ? '2' : '3');
                     });
 
+                    // Level 1 - Always unlocked
                     document.getElementById('node-Easy').classList.add('unlocked');
                     
+                    // Level 2
                     const medNode = document.getElementById('node-Medium');
                     if (status.unlockedLevel >= 2) {
                         medNode.classList.add('unlocked');
@@ -320,6 +345,7 @@
                         medNode.innerHTML = '<i class="fas fa-lock"></i>';
                     }
 
+                    // Level 3
                     const hardNode = document.getElementById('node-Hard');
                     if (status.unlockedLevel >= 3) {
                         hardNode.classList.add('unlocked');
@@ -328,11 +354,19 @@
                         hardNode.innerHTML = '<i class="fas fa-lock"></i>';
                     }
 
-                    // Status Text
+                    // Status Text with progress
                     let reason = "";
-                    if (status.unlockedLevel == 1) reason = "Qualification Rule: Score 70% in Level 1 to unlock Level 2";
-                    else if (status.unlockedLevel == 2) reason = "Qualification Rule: Score 50% in Level 2 to unlock Level 3";
-                    else reason = "Training Path Complete: All levels unlocked!";
+                    if (status.unlockedLevel == 1) {
+                        reason = `Level 1: ${stats.l1.attempted}/20 questions (${stats.l1.percentage}% | Avg: ${stats.l1.avgScore}%) | Need: 70% completion & 70% avg score to unlock Level 2`;
+                    } else if (status.unlockedLevel == 2) {
+                        reason = `Level 2: ${stats.l2.attempted}/20 questions (${stats.l2.percentage}% | Avg: ${stats.l2.avgScore}%) | Need: 50% completion & 50% avg score to unlock Level 3`;
+                    } else if (status.unlockedLevel == 3) {
+                        if (status.l3Completed) {
+                            reason = "🎓 All levels completed! Practice session finished!";
+                        } else {
+                            reason = `Level 3: ${stats.l3.attempted}/20 questions (${stats.l3.percentage}% | Avg: ${stats.l3.avgScore}%) | Complete all questions to finish`;
+                        }
+                    }
                     document.getElementById('lockReason').innerText = reason;
                 }
             } catch (e) {
@@ -413,16 +447,25 @@
                     fb.style.display = 'block';
                     btn.innerText = 'Answer Evaluated';
                     
-                    // Progression Logic check
-                    if (data.data.difficulty === 'Easy' && data.data.rawScore >= 70) {
-                        showUnlockAlert('🎉 Level 1 Qualified! Level 2 is now UNLOCKED.');
-                        updateProgressionStatus();
-                    } else if (data.data.difficulty === 'Medium' && data.data.rawScore >= 50) {
-                        showUnlockAlert('🔥 Level 2 Qualified! Level 3 is now UNLOCKED.');
-                        updateProgressionStatus();
+                    // Refresh progression status and check for unlocks
+                    await updateProgressionStatus();
+                    const statusRes = await fetch(`${API_URL}/practice/status/${currentCategory}`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    const statusData = await statusRes.json();
+                    if (statusData.success) {
+                        const stats = statusData.data;
+                        if (stats.unlockedLevel === 2 && currentLevel === 'Easy') {
+                            showUnlockAlert(`🎉 Great progress! Level 2 (Medium) is now UNLOCKED! (${stats.levelStats.l1.attempted}/20 questions, ${stats.levelStats.l1.avgScore}% avg)`);
+                        } else if (stats.unlockedLevel === 3 && currentLevel === 'Medium') {
+                            showUnlockAlert(`🔥 Excellent! Level 3 (Hard) is now UNLOCKED! (${stats.levelStats.l2.attempted}/20 questions, ${stats.levelStats.l2.avgScore}% avg)`);
+                        } else if (stats.l3Completed && currentLevel === 'Hard') {
+                            showUnlockAlert('🏆 All questions completed! Practice session finished! Congratulations!');
+                        }
                     }
                 }
             } catch (e) { 
+                console.error('Submission error:', e);
                 alert('Submission error'); 
                 btn.disabled = false; 
                 btn.innerText='Submit Answer'; 

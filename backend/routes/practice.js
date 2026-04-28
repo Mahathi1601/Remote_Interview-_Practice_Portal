@@ -7,7 +7,7 @@ const PracticeSession = require('../models/PracticeSession');
 const { generateFeedback } = require('../utils/feedbackGenerator');
 
 // @route   GET /api/practice/status/:categoryId
-// @desc    Get unlocked level for a category
+// @desc    Get unlocked level for a category (percentage-based qualification)
 router.get('/status/:categoryId', protect, async (req, res) => {
     try {
         const userId = req.user.id;
@@ -17,35 +17,75 @@ router.get('/status/:categoryId', protect, async (req, res) => {
             return res.status(404).json({ success: false, message: 'Category not found' });
         }
 
-        // Check L1 (Easy) qualification -> Unlock L2 (Medium)
-        const l1Qualified = await PracticeSession.findOne({
-            userId,
-            categoryName: category.name,
-            difficulty: 'Easy',
-            score: { $gte: 70 }
-        });
+        const totalQuestionsPerLevel = 20; // Each level has 20 questions
+        const l1QualificationPercent = 70; // 70% of questions must be done
+        const l2QualificationPercent = 50; // 50% of questions must be done
+        const l1RequiredScore = 70; // Average score must be >= 70%
+        const l2RequiredScore = 50; // Average score must be >= 50%
 
-        // Check L2 (Medium) qualification -> Unlock L3 (Hard)
-        const l2Qualified = await PracticeSession.findOne({
+        // Get Level 1 (Easy) stats
+        const l1Sessions = await PracticeSession.find({
             userId,
             categoryName: category.name,
-            difficulty: 'Medium',
-            score: { $gte: 50 }
+            difficulty: 'Easy'
         });
+        const l1QuestionCount = l1Sessions.length;
+        const l1Percentage = Math.round((l1QuestionCount / totalQuestionsPerLevel) * 100);
+        const l1AvgScore = l1QuestionCount > 0 
+            ? Math.round(l1Sessions.reduce((acc, s) => acc + s.score, 0) / l1QuestionCount)
+            : 0;
+        const l1Qualified = l1QuestionCount >= (totalQuestionsPerLevel * l1QualificationPercent / 100) && l1AvgScore >= l1RequiredScore;
+
+        // Get Level 2 (Medium) stats
+        const l2Sessions = await PracticeSession.find({
+            userId,
+            categoryName: category.name,
+            difficulty: 'Medium'
+        });
+        const l2QuestionCount = l2Sessions.length;
+        const l2Percentage = Math.round((l2QuestionCount / totalQuestionsPerLevel) * 100);
+        const l2AvgScore = l2QuestionCount > 0 
+            ? Math.round(l2Sessions.reduce((acc, s) => acc + s.score, 0) / l2QuestionCount)
+            : 0;
+        const l2Qualified = l2QuestionCount >= (totalQuestionsPerLevel * l2QualificationPercent / 100) && l2AvgScore >= l2RequiredScore;
+
+        // Get Level 3 (Hard) stats
+        const l3Sessions = await PracticeSession.find({
+            userId,
+            categoryName: category.name,
+            difficulty: 'Hard'
+        });
+        const l3QuestionCount = l3Sessions.length;
+        const l3Percentage = Math.round((l3QuestionCount / totalQuestionsPerLevel) * 100);
+        const l3AvgScore = l3QuestionCount > 0 
+            ? Math.round(l3Sessions.reduce((acc, s) => acc + s.score, 0) / l3QuestionCount)
+            : 0;
+        const l3Completed = l3QuestionCount >= totalQuestionsPerLevel;
+
+        // Determine unlocked level
+        let unlockedLevel = 1;
+        if (l1Qualified) unlockedLevel = 2;
+        if (l2Qualified) unlockedLevel = 3;
 
         res.status(200).json({
             success: true,
             data: {
                 categoryName: category.name,
-                unlockedLevel: l2Qualified ? 3 : (l1Qualified ? 2 : 1),
-                thresholds: { easyToMedium: 70, mediumToHard: 50 },
+                unlockedLevel,
+                l3Completed,
+                thresholds: { 
+                    easyToMedium: `${l1QualificationPercent}% of ${totalQuestionsPerLevel} questions with avg ${l1RequiredScore}%`, 
+                    mediumToHard: `${l2QualificationPercent}% of ${totalQuestionsPerLevel} questions with avg ${l2RequiredScore}%`
+                },
                 levelStats: {
-                    l1Best: l1Qualified ? l1Qualified.score : 0,
-                    l2Best: l2Qualified ? l2Qualified.score : 0
+                    l1: { attempted: l1QuestionCount, percentage: l1Percentage, avgScore: l1AvgScore, qualified: l1Qualified },
+                    l2: { attempted: l2QuestionCount, percentage: l2Percentage, avgScore: l2AvgScore, qualified: l2Qualified },
+                    l3: { attempted: l3QuestionCount, percentage: l3Percentage, avgScore: l3AvgScore, completed: l3Completed }
                 }
             }
         });
     } catch (error) {
+        console.error('Error fetching practice status:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 });
