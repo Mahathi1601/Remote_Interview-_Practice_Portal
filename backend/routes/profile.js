@@ -41,12 +41,14 @@ router.put('/', protect, async (req, res) => {
 
         res.status(200).json({
             success: true,
+            message: 'Profile updated successfully',
             data: user
         });
     } catch (error) {
+        console.error('Profile update error:', error);
         res.status(500).json({
             success: false,
-            message: 'Server error'
+            message: 'Failed to update profile'
         });
     }
 });
@@ -55,17 +57,37 @@ router.put('/', protect, async (req, res) => {
 // @desc    Update password
 router.put('/password', protect, async (req, res) => {
     try {
-        const { password } = req.body;
+        const { currentPassword, newPassword } = req.body;
         
-        if (!password || password.length < 6) {
+        if (!newPassword || newPassword.length < 6) {
             return res.status(400).json({
                 success: false,
-                message: 'Password must be at least 6 characters'
+                message: 'New password must be at least 6 characters'
             });
         }
 
-        const user = await User.findById(req.user.id);
-        user.password = password;
+        const user = await User.findById(req.user.id).select('+password');
+        
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+
+        // Verify current password
+        const bcrypt = require('bcryptjs');
+        const isPasswordMatch = await bcrypt.compare(currentPassword, user.password);
+        
+        if (!isPasswordMatch) {
+            return res.status(401).json({
+                success: false,
+                message: 'Current password is incorrect'
+            });
+        }
+
+        // Update password
+        user.password = newPassword;
         await user.save();
 
         res.status(200).json({
@@ -73,9 +95,10 @@ router.put('/password', protect, async (req, res) => {
             message: 'Password updated successfully'
         });
     } catch (error) {
+        console.error('Password update error:', error);
         res.status(500).json({
             success: false,
-            message: 'Server error'
+            message: 'Failed to update password'
         });
     }
 });

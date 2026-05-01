@@ -33,7 +33,9 @@ const userSchema = new mongoose.Schema({
         experience: String,
         education: String,
         targetRole: String,
-        yearsOfExperience: Number
+        yearsOfExperience: Number,
+        dateOfBirth: Date,
+        mobileNumber: String
     },
     createdAt: {
         type: Date,

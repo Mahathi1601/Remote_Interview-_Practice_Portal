@@ -354,17 +354,16 @@
                         hardNode.innerHTML = '<i class="fas fa-lock"></i>';
                     }
 
-                    // Status Text with progress
                     let reason = "";
                     if (status.unlockedLevel == 1) {
-                        reason = `Level 1: ${stats.l1.attempted}/20 questions (${stats.l1.percentage}% | Avg: ${stats.l1.avgScore}%) | Need: 70% completion & 70% avg score to unlock Level 2`;
+                        reason = `Level 1: ${stats.l1.attempted}/${stats.l1.total} questions (${stats.l1.percentage}% | Avg: ${stats.l1.avgScore}%) | Need: ${status.thresholds.easyToMedium}`;
                     } else if (status.unlockedLevel == 2) {
-                        reason = `Level 2: ${stats.l2.attempted}/20 questions (${stats.l2.percentage}% | Avg: ${stats.l2.avgScore}%) | Need: 50% completion & 50% avg score to unlock Level 3`;
+                        reason = `Level 2: ${stats.l2.attempted}/${stats.l2.total} questions (${stats.l2.percentage}% | Avg: ${stats.l2.avgScore}%) | Need: ${status.thresholds.mediumToHard}`;
                     } else if (status.unlockedLevel == 3) {
                         if (status.l3Completed) {
-                            reason = "🎓 All levels completed! Practice session finished!";
+                            reason = "🎓 All levels completed! Practice session finished! Redirecting to Dashboard...";
                         } else {
-                            reason = `Level 3: ${stats.l3.attempted}/20 questions (${stats.l3.percentage}% | Avg: ${stats.l3.avgScore}%) | Complete all questions to finish`;
+                            reason = `Level 3: ${stats.l3.attempted}/${stats.l3.total} questions (${stats.l3.percentage}% | Avg: ${stats.l3.avgScore}%) | Complete all ${stats.l3.total} questions to finish`;
                         }
                     }
                     document.getElementById('lockReason').innerText = reason;
@@ -456,11 +455,12 @@
                     if (statusData.success) {
                         const stats = statusData.data;
                         if (stats.unlockedLevel === 2 && currentLevel === 'Easy') {
-                            showUnlockAlert(`🎉 Great progress! Level 2 (Medium) is now UNLOCKED! (${stats.levelStats.l1.attempted}/20 questions, ${stats.levelStats.l1.avgScore}% avg)`);
+                            showUnlockAlert(`🎉 Great progress! Level 2 (Medium) is now UNLOCKED! (${stats.levelStats.l1.attempted}/10 questions, ${stats.levelStats.l1.avgScore}% avg)`);
                         } else if (stats.unlockedLevel === 3 && currentLevel === 'Medium') {
-                            showUnlockAlert(`🔥 Excellent! Level 3 (Hard) is now UNLOCKED! (${stats.levelStats.l2.attempted}/20 questions, ${stats.levelStats.l2.avgScore}% avg)`);
+                            showUnlockAlert(`🔥 Excellent! Level 3 (Hard) is now UNLOCKED! (${stats.levelStats.l2.attempted}/10 questions, ${stats.levelStats.l2.avgScore}% avg)`);
                         } else if (stats.l3Completed && currentLevel === 'Hard') {
-                            showUnlockAlert('🏆 All questions completed! Practice session finished! Congratulations!');
+                            showUnlockAlert('🏆 All questions completed! Practice session finished! Redirecting to Dashboard...');
+                            setTimeout(() => { window.location.href = 'dashboard.html'; }, 3000);
                         }
                     }
                 }

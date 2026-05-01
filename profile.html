@@ -691,57 +691,69 @@
     </div>
 
     <script>
-        // Load user data from localStorage
-        function loadUserData() {
-            const user = JSON.parse(localStorage.getItem('user') || '{}');
-            
-            document.getElementById('fullName').value = user.fullName || user.name || '';
-            document.getElementById('email').value = user.email || '';
-            document.getElementById('phone').value = user.phone || '';
-            document.getElementById('dob').value = user.dob || '';
-            document.getElementById('bio').value = user.bio || '';
-            document.getElementById('experienceLevel').value = user.experienceLevel || 'Fresher';
-            document.getElementById('profileName').textContent = user.fullName || user.name || 'Guest User';
-            document.getElementById('profileEmail').textContent = user.email || 'guest@example.com';
-            
-            // Load avatar
-            const avatarUrl = user.avatar || `https://ui-avatars.com/api/?background=23465B&color=fff&name=${encodeURIComponent(user.fullName || user.name || 'User')}`;
-            document.getElementById('profileAvatar').src = avatarUrl;
-            
-            // Load skills
-            const skills = user.skills || [];
-            displaySkills(skills);
-            
-            // Load stats
-            loadUserStats();
-            
-            // Member since
-            if (user.joinedDate) {
-                const joined = new Date(user.joinedDate);
-                document.getElementById('memberSince').textContent = `Member since: ${joined.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}`;
+        const API_URL = 'http://localhost:5000/api';
+        const token = localStorage.getItem('token');
+        
+        if (!token) window.location.href = 'login.html';
+
+        // Load user data from API
+        async function loadUserData() {
+            try {
+                const res = await fetch(`${API_URL}/profile`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    const user = data.data;
+                    document.getElementById('fullName').value = user.name || '';
+                    document.getElementById('email').value = user.email || '';
+                    document.getElementById('phone').value = user.profile?.mobileNumber || '';
+                    document.getElementById('dob').value = user.profile?.dateOfBirth ? user.profile.dateOfBirth.split('T')[0] : '';
+                    document.getElementById('bio').value = user.profile?.education || '';
+                    document.getElementById('experienceLevel').value = user.profile?.yearsOfExperience || '';
+                    document.getElementById('profileName').textContent = user.name || 'User';
+                    document.getElementById('profileEmail').textContent = user.email || '';
+                    
+                    // Load avatar
+                    const avatarUrl = `https://ui-avatars.com/api/?background=23465B&color=fff&name=${encodeURIComponent(user.name || 'User')}`;
+                    document.getElementById('profileAvatar').src = avatarUrl;
+                    
+                    // Load skills
+                    const skills = user.profile?.skills || [];
+                    displaySkills(skills);
+                    
+                    // Load stats
+                    loadUserStats();
+                } else {
+                    showToast('Failed to load user data', 'error');
+                }
+            } catch (error) {
+                console.error('Error loading user data:', error);
+                showToast('Error loading profile', 'error');
             }
         }
         
-        // Load user statistics
-        function loadUserStats() {
-            const practiceHistory = JSON.parse(localStorage.getItem('interviewHistory') || '[]');
-            const mockHistory = JSON.parse(localStorage.getItem('mockInterviewHistory') || '[]');
-            
-            const totalInterviews = practiceHistory.length + mockHistory.length;
-            
-            let totalQuestions = 0;
-            practiceHistory.forEach(p => totalQuestions += p.answered || 0);
-            mockHistory.forEach(m => totalQuestions += m.answered || 0);
-            
-            let totalScore = 0;
-            let scoreCount = 0;
-            practiceHistory.forEach(p => { totalScore += p.score || 0; scoreCount++; });
-            mockHistory.forEach(m => { totalScore += m.avgConfidence || 0; scoreCount++; });
-            const avgScore = scoreCount > 0 ? Math.round(totalScore / scoreCount) : 0;
-            
-            document.getElementById('statInterviews').textContent = totalInterviews;
-            document.getElementById('statQuestions').textContent = totalQuestions;
-            document.getElementById('statAvgScore').textContent = avgScore;
+        // Load user statistics from backend (dashboard data)
+        async function loadUserStats() {
+            try {
+                const res = await fetch(`${API_URL}/dashboard/combined-stats`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    const totalInterviews = data.practice.totalSessions + data.mock.totalInterviews;
+                    const totalQuestions = data.practice.totalQuestions;
+                    const avgScore = Math.round((data.practice.avgScore + data.mock.avgConfidence) / 2);
+                    
+                    document.getElementById('statInterviews').textContent = totalInterviews;
+                    document.getElementById('statQuestions').textContent = totalQuestions;
+                    document.getElementById('statAvgScore').textContent = avgScore;
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
         }
         
         // Display skills
@@ -761,7 +773,7 @@
         }
         
         // Add skill
-        function addSkill() {
+        async function addSkill() {
             const newSkillInput = document.getElementById('newSkill');
             const skill = newSkillInput.value.trim();
             
@@ -770,63 +782,144 @@
                 return;
             }
             
-            const user = JSON.parse(localStorage.getItem('user') || '{}');
-            const skills = user.skills || [];
-            
-            if (skills.includes(skill)) {
-                showToast('Skill already exists', 'error');
-                return;
+            try {
+                const res = await fetch(`${API_URL}/profile`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    const user = data.data;
+                    const skills = user.profile?.skills || [];
+                    
+                    if (skills.includes(skill)) {
+                        showToast('Skill already exists', 'error');
+                        return;
+                    }
+                    
+                    skills.push(skill);
+                    
+                    // Update on backend
+                    const updateRes = await fetch(`${API_URL}/profile`, {
+                        method: 'PUT',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            profile: { ...user.profile, skills }
+                        })
+                    });
+                    
+                    const updateData = await updateRes.json();
+                    if (updateData.success) {
+                        displaySkills(skills);
+                        newSkillInput.value = '';
+                        showToast('Skill added successfully', 'success');
+                    }
+                }
+            } catch (error) {
+                console.error('Error adding skill:', error);
+                showToast('Error adding skill', 'error');
             }
-            
-            skills.push(skill);
-            user.skills = skills;
-            localStorage.setItem('user', JSON.stringify(user));
-            
-            displaySkills(skills);
-            newSkillInput.value = '';
-            showToast('Skill added successfully', 'success');
         }
         
         // Remove skill
-        function removeSkill(skill) {
-            const user = JSON.parse(localStorage.getItem('user') || '{}');
-            const skills = user.skills || [];
-            const updatedSkills = skills.filter(s => s !== skill);
-            user.skills = updatedSkills;
-            localStorage.setItem('user', JSON.stringify(user));
-            displaySkills(updatedSkills);
-            showToast('Skill removed', 'success');
+        async function removeSkill(skill) {
+            try {
+                const res = await fetch(`${API_URL}/profile`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    const user = data.data;
+                    const skills = user.profile?.skills || [];
+                    const updatedSkills = skills.filter(s => s !== skill);
+                    
+                    const updateRes = await fetch(`${API_URL}/profile`, {
+                        method: 'PUT',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            profile: { ...user.profile, skills: updatedSkills }
+                        })
+                    });
+                    
+                    const updateData = await updateRes.json();
+                    if (updateData.success) {
+                        displaySkills(updatedSkills);
+                        showToast('Skill removed', 'success');
+                    }
+                }
+            } catch (error) {
+                console.error('Error removing skill:', error);
+            }
         }
         
         // Save profile changes
-        document.getElementById('profileForm').addEventListener('submit', (e) => {
+        document.getElementById('profileForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const name = document.getElementById('fullName').value;
+            const phone = document.getElementById('phone').value;
+            const dob = document.getElementById('dob').value;
+            const bio = document.getElementById('bio').value;
             
-            user.fullName = document.getElementById('fullName').value;
-            user.name = document.getElementById('fullName').value;
-            user.email = document.getElementById('email').value;
-            user.phone = document.getElementById('phone').value;
-            user.dob = document.getElementById('dob').value;
-            user.bio = document.getElementById('bio').value;
-            user.experienceLevel = document.getElementById('experienceLevel').value;
-            
-            if (!user.joinedDate) {
-                user.joinedDate = new Date().toISOString();
+            if (!name || !phone || !dob) {
+                showToast('Please fill all required fields', 'error');
+                return;
             }
             
-            localStorage.setItem('user', JSON.stringify(user));
-            
-            // Update display
-            document.getElementById('profileName').textContent = user.fullName;
-            document.getElementById('profileEmail').textContent = user.email;
-            
-            showToast('Profile updated successfully!', 'success');
+            try {
+                // Get current user data
+                const getRes = await fetch(`${API_URL}/profile`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const getData = await getRes.json();
+                
+                if (!getData.success) {
+                    showToast('Failed to fetch current data', 'error');
+                    return;
+                }
+                
+                const user = getData.data;
+                
+                // Update profile
+                const updateRes = await fetch(`${API_URL}/profile`, {
+                    method: 'PUT',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        name: name,
+                        profile: {
+                            ...user.profile,
+                            mobileNumber: phone,
+                            dateOfBirth: dob,
+                            education: bio
+                        }
+                    })
+                });
+                
+                const updateData = await updateRes.json();
+                if (updateData.success) {
+                    document.getElementById('profileName').textContent = name;
+                    showToast('Profile updated successfully!', 'success');
+                } else {
+                    showToast('Failed to update profile', 'error');
+                }
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                showToast('Error updating profile', 'error');
+            }
         });
         
         // Change password
-        document.getElementById('passwordForm').addEventListener('submit', (e) => {
+        document.getElementById('passwordForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
             const currentPassword = document.getElementById('currentPassword').value;
@@ -848,20 +941,36 @@
                 return;
             }
             
-            // In a real app, verify current password with backend
-            showToast('Password changed successfully!', 'success');
-            
-            // Clear password fields
-            document.getElementById('currentPassword').value = '';
-            document.getElementById('newPassword').value = '';
-            document.getElementById('confirmPassword').value = '';
+            try {
+                const res = await fetch(`${API_URL}/profile/password`, {
+                    method: 'PUT',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        currentPassword,
+                        newPassword
+                    })
+                });
+                
+                const data = await res.json();
+                if (data.success) {
+                    showToast('Password changed successfully!', 'success');
+                    document.getElementById('currentPassword').value = '';
+                    document.getElementById('newPassword').value = '';
+                    document.getElementById('confirmPassword').value = '';
+                } else {
+                    showToast(data.message || 'Failed to change password', 'error');
+                }
+            } catch (error) {
+                console.error('Error changing password:', error);
+                showToast('Error changing password', 'error');
+            }
         });
         
         // Avatar functions
         function openAvatarModal() {
-            const user = JSON.parse(localStorage.getItem('user') || '{}');
-            const avatarUrl = user.avatar || '';
-            document.getElementById('avatarPreview').src = avatarUrl;
             document.getElementById('avatarModal').style.display = 'flex';
         }
         
