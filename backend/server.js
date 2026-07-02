@@ -2,6 +2,7 @@ const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const connectDB = require('./config/database');
+const path = require('path');
 
 // Load env vars
 dotenv.config();
@@ -29,6 +30,10 @@ app.use('/api/mock', require('./routes/mock'));
 app.use('/api/dashboard', require('./routes/dashboard'));
 app.use('/api/categories', require('./routes/categories'));
 app.use('/api/questions', require('./routes/questions'));
+app.use('/api/interview-plans', require('./routes/interviewPlans'));
+
+// Serve static frontend files
+app.use(express.static(path.join(__dirname, '../')));
 
 // Error handler
 app.use((err, req, res, next) => {

@@ -378,6 +378,39 @@
             color: #e67e22 !important;
             font-weight: 600;
         }
+
+        /* Modal and Modal animation */
+        @keyframes slideIn {
+            from { transform: translateY(-30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            animation: slideIn 0.3s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #23465B !important;
+        }
     </style>
 </head>
 
@@ -450,24 +483,13 @@
         </div>
         <div class="right">
             <div class="right-box">
-                <h3>Upcoming Interviews</h3>
-                <div class="interview-card" data-time="2026-03-27T10:00:00" data-link="https://www.amazon.jobs/en/">
-                    <span class="badge">Upcoming</span>
-                    <p><strong>Amazon</strong></p>
-                    <p>Software Developer</p>
-                    <p class="time">20 April, 10:00 AM</p>
-                    <p class="countdown"></p>
-                    <button class="action-btn">View</button>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3 style="margin: 0; font-size: 20px; color: #23465B;">Upcoming Interviews</h3>
+                    <button id="addPlanBtn" style="background: #23465B; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 4px; transition: 0.3s;" onclick="openAddPlanModal()">
+                        <i class="fa-solid fa-plus"></i> Add
+                    </button>
                 </div>
-
-                <div class="interview-card" data-time="2026-03-30T14:00:00" data-link="https://www.tcs.com/careers">
-                    <span class="badge">Upcoming</span>
-                    <p><strong>TCS</strong></p>
-                    <p>System Engineer</p>
-                    <p class="time">30 April, 2:00 PM</p>
-                    <p class="countdown"></p>
-                    <button class="action-btn">View</button>
-                </div>
+                <div id="upcomingList"></div>
             </div>
         </div>
     </div>
@@ -482,12 +504,302 @@
         </div>
     </div>
 
+    <!-- Add Interview Plan Modal -->
+    <div id="addPlanModal" class="modal">
+        <div class="modal-content" style="padding: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #E2E8F0; padding-bottom: 12px; margin-bottom: 20px;">
+                <h3 style="color: #23465B; margin: 0; font-size: 18px; font-weight: 600;"><i class="fa-solid fa-calendar-plus" style="margin-right: 8px;"></i>Add Interview Plan</h3>
+                <button onclick="closeAddPlanModal()" style="background: none; border: none; color: #64748B; font-size: 20px; cursor: pointer;"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="addPlanForm" onsubmit="submitInterviewPlan(event)">
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label style="display: block; font-weight: 600; font-size: 13px; color: #333; margin-bottom: 6px;">Company Name *</label>
+                    <input type="text" id="planCompany" required placeholder="e.g. Google" style="width: 100%; padding: 10px 14px; border: 2px solid #E2E8F0; border-radius: 8px; font-size: 14px; transition: 0.3s; font-family: inherit;">
+                </div>
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label style="display: block; font-weight: 600; font-size: 13px; color: #333; margin-bottom: 6px;">Job Role / Position *</label>
+                    <input type="text" id="planRole" required placeholder="e.g. Software Engineer" style="width: 100%; padding: 10px 14px; border: 2px solid #E2E8F0; border-radius: 8px; font-size: 14px; transition: 0.3s; font-family: inherit;">
+                </div>
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label style="display: block; font-weight: 600; font-size: 13px; color: #333; margin-bottom: 6px;">Date & Time *</label>
+                    <input type="datetime-local" id="planDateTime" required style="width: 100%; padding: 10px 14px; border: 2px solid #E2E8F0; border-radius: 8px; font-size: 14px; transition: 0.3s; font-family: inherit;">
+                </div>
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label style="display: block; font-weight: 600; font-size: 13px; color: #333; margin-bottom: 6px;">Interview Type *</label>
+                    <select id="planMode" required onchange="toggleLinkField()" style="width: 100%; padding: 10px 14px; border: 2px solid #E2E8F0; border-radius: 8px; font-size: 14px; transition: 0.3s; font-family: inherit; background: white; cursor: pointer;">
+                        <option value="online">Online</option>
+                        <option value="offline">Offline</option>
+                    </select>
+                </div>
+                <div class="form-group" id="linkFieldGroup" style="margin-bottom: 16px;">
+                    <label style="display: block; font-weight: 600; font-size: 13px; color: #333; margin-bottom: 6px;">Interview Link / Website (Optional)</label>
+                    <input type="url" id="planLink" placeholder="e.g. https://meet.google.com/abc-defg-hij" style="width: 100%; padding: 10px 14px; border: 2px solid #E2E8F0; border-radius: 8px; font-size: 14px; transition: 0.3s; font-family: inherit;">
+                </div>
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label style="display: block; font-weight: 600; font-size: 13px; color: #333; margin-bottom: 6px;">Notes / Prep Status</label>
+                    <textarea id="planNotes" placeholder="e.g. Prepare system design topics, review resume..." rows="3" style="width: 100%; padding: 10px 14px; border: 2px solid #E2E8F0; border-radius: 8px; font-size: 14px; transition: 0.3s; font-family: inherit; resize: vertical;"></textarea>
+                </div>
+                <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                    <button type="button" onclick="closeAddPlanModal()" style="padding: 10px 20px; border: none; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; background: #E2E8F0; color: #475569; transition: 0.3s;">Cancel</button>
+                    <button type="submit" style="padding: 10px 20px; border: none; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; background: #23465B; color: white; transition: 0.3s;">Save Plan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
+        const API_URL = 'http://localhost:5000/api';
+        const token = localStorage.getItem('token');
+        if (!token) window.location.href = 'login.html';
+
         // Logout function
         function logout() {
             localStorage.removeItem('token');
             localStorage.removeItem('user');
             window.location.href = 'login.html';
+        }
+
+        let interviewPlans = [];
+
+        // Fetch user's upcoming interview plans
+        async function fetchInterviewPlans() {
+            try {
+                const res = await fetch(`${API_URL}/interview-plans`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    interviewPlans = data.data;
+                    renderInterviewPlans();
+                } else {
+                    showToast(data.message || 'Failed to fetch interview plans', 'error');
+                }
+            } catch (error) {
+                console.error('Error fetching interview plans:', error);
+                showToast('Error loading interview plans', 'error');
+            }
+        }
+
+        // Render interview plans dynamically in right-side timeline
+        function renderInterviewPlans() {
+            const container = document.getElementById('upcomingList');
+            if (!container) return;
+
+            if (interviewPlans.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px 10px; color: #64748B;">
+                        <i class="fa-solid fa-calendar-day" style="font-size: 36px; margin-bottom: 12px; color: #94A3B8; display: block;"></i>
+                        <p style="font-size: 14px; margin-bottom: 16px;">No upcoming interviews planned.</p>
+                        <button onclick="openAddPlanModal()" style="background: #23465B; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; transition: 0.3s; display: inline-flex; align-items: center; gap: 4px; margin: 0 auto;">
+                            <i class="fa-solid fa-plus"></i> Add Plan
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = interviewPlans.map(plan => {
+                const dateObj = new Date(plan.dateTime);
+                const timeStr = dateObj.toLocaleDateString('en-IN', {
+                    day: 'numeric',
+                    month: 'long'
+                }) + ', ' + dateObj.toLocaleTimeString('en-IN', {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true
+                });
+
+                const linkAttr = plan.interviewLink ? `data-link="${plan.interviewLink}"` : '';
+                const modeVal = plan.mode || 'online';
+
+                return `
+                    <div class="interview-card" data-id="${plan._id}" data-time="${plan.dateTime}" data-mode="${modeVal}" data-notes="${escapeHTML(plan.notes || '')}" ${linkAttr} style="position: relative; padding-right: 36px;">
+                        <button onclick="deleteInterviewPlan('${plan._id}', event)" style="position: absolute; top: 12px; right: 12px; background: none; border: none; color: #EF4444; cursor: pointer; font-size: 14px; opacity: 0.7; transition: 0.3s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7" title="Delete Plan">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                        <span class="badge" style="background: #e67e22;">Upcoming</span>
+                        <p><strong>${escapeHTML(plan.companyName)}</strong></p>
+                        <p>${escapeHTML(plan.role)}</p>
+                        <p style="font-size: 12px; color: #56738A; margin-top: 2px;">
+                            <i class="fa-solid ${modeVal === 'offline' ? 'fa-building' : 'fa-video'}" style="margin-right: 4px;"></i>
+                            ${modeVal === 'offline' ? 'Offline (In-person)' : 'Online Interview'}
+                        </p>
+                        <p class="time">${timeStr}</p>
+                        ${plan.notes ? `<p style="font-size: 12px; color: #475569; font-style: italic; margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHTML(plan.notes)}">${escapeHTML(plan.notes)}</p>` : ''}
+                        <p class="countdown"></p>
+                        <button class="action-btn">View</button>
+                    </div>
+                `;
+            }).join('');
+
+            // Bind click events to View buttons and cards dynamically
+            const cards = container.querySelectorAll('.interview-card');
+            cards.forEach(card => {
+                const btn = card.querySelector('.action-btn');
+                const action = (e) => {
+                    if (e.target.closest('button') && !e.target.closest('.action-btn')) return; // Avoid triggering for delete button
+                    const link = card.getAttribute('data-link');
+                    const badge = card.querySelector('.badge');
+                    const isLive = badge && badge.innerText === 'Live';
+                    const mode = card.getAttribute('data-mode');
+
+                    if (link && link.startsWith('http')) {
+                        window.open(link, '_blank');
+                    } else if (isLive && mode !== 'offline') {
+                        window.location.href = 'mockinterview.html';
+                    } else {
+                        // If offline or no link, show detail popup
+                        const company = card.querySelector('p strong').innerText;
+                        const role = card.querySelectorAll('p')[1].innerText;
+                        const time = card.querySelector('.time').innerText;
+                        const notesAttr = card.getAttribute('data-notes') || 'No preparation notes.';
+                        const modeAttr = card.getAttribute('data-mode') || 'online';
+                        alert(`${company} - ${role}\nMode: ${modeAttr.toUpperCase()}\nTime: ${time}\nNotes: ${notesAttr}`);
+                    }
+                };
+
+                if (btn) btn.addEventListener('click', action);
+                card.addEventListener('click', action);
+            });
+
+            // Update countdowns immediately
+            updateCountdowns();
+        }
+
+        // Helper to escape HTML tags to prevent XSS
+        function escapeHTML(str) {
+            if (!str) return '';
+            return str.replace(/[&<>'"]/g, 
+                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+            );
+        }
+
+        // Modal triggers
+        function openAddPlanModal() {
+            document.getElementById('addPlanModal').style.display = 'flex';
+        }
+
+        // Close modal and reset fields
+        function closeAddPlanModal() {
+            document.getElementById('addPlanModal').style.display = 'none';
+            document.getElementById('addPlanForm').reset();
+            toggleLinkField();
+        }
+
+        // Toggle visibility of Interview Link based on Online/Offline selection
+        function toggleLinkField() {
+            const mode = document.getElementById('planMode').value;
+            const linkGroup = document.getElementById('linkFieldGroup');
+            const linkInput = document.getElementById('planLink');
+            
+            if (mode === 'offline') {
+                linkGroup.style.display = 'none';
+                linkInput.value = ''; // clear value
+            } else {
+                linkGroup.style.display = 'block';
+            }
+        }
+
+        // Add plan submission
+        async function submitInterviewPlan(e) {
+            e.preventDefault();
+            const companyName = document.getElementById('planCompany').value.trim();
+            const role = document.getElementById('planRole').value.trim();
+            const dateTime = document.getElementById('planDateTime').value;
+            const mode = document.getElementById('planMode').value;
+            const interviewLink = document.getElementById('planLink').value.trim();
+            const notes = document.getElementById('planNotes').value.trim();
+
+            if (!companyName || !role || !dateTime) {
+                showToast('Please fill out all required fields', 'error');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_URL}/interview-plans`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ companyName, role, dateTime, interviewLink, mode, notes })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    showToast('Interview plan added successfully!');
+                    closeAddPlanModal();
+                    fetchInterviewPlans();
+                } else {
+                    showToast(data.message || 'Failed to add interview plan', 'error');
+                }
+            } catch (error) {
+                console.error('Error adding interview plan:', error);
+                showToast('Error adding interview plan', 'error');
+            }
+        }
+
+        // Delete plan
+        async function deleteInterviewPlan(id, e) {
+            if (e) e.stopPropagation();
+            if (!confirm('Are you sure you want to delete this interview plan?')) return;
+
+            try {
+                const res = await fetch(`${API_URL}/interview-plans/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    showToast('Interview plan deleted successfully!');
+                    fetchInterviewPlans();
+                } else {
+                    showToast(data.message || 'Failed to delete interview plan', 'error');
+                }
+            } catch (error) {
+                console.error('Error deleting interview plan:', error);
+                showToast('Error deleting interview plan', 'error');
+            }
+        }
+
+        // Toast Notification System
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.style.position = 'fixed';
+            toast.style.bottom = '20px';
+            toast.style.right = '20px';
+            toast.style.background = 'white';
+            toast.style.padding = '12px 24px';
+            toast.style.borderRadius = '8px';
+            toast.style.boxShadow = '0 5px 15px rgba(0,0,0,0.15)';
+            toast.style.display = 'flex';
+            toast.style.alignItems = 'center';
+            toast.style.gap = '8px';
+            toast.style.zIndex = '3000';
+            toast.style.borderLeft = type === 'success' ? '4px solid #10B981' : '4px solid #EF4444';
+            toast.style.fontFamily = 'inherit';
+            toast.style.fontSize = '14px';
+            toast.style.fontWeight = '500';
+            toast.style.animation = 'slideIn 0.3s ease';
+            
+            const icon = document.createElement('i');
+            icon.className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
+            icon.style.color = type === 'success' ? '#10B981' : '#EF4444';
+            
+            const text = document.createElement('span');
+            text.innerText = message;
+            
+            toast.appendChild(icon);
+            toast.appendChild(text);
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.5s ease';
+                setTimeout(() => toast.remove(), 500);
+            }, 3000);
         }
 
         // Countdown timer function with ORANGE color for live
@@ -507,9 +819,15 @@
                 const badge = card.querySelector(".badge");
 
                 if (diff > 0) {
-                    const hours = Math.floor(diff / (1000 * 60 * 60));
+                    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                    countdownEl.innerText = `Starts in ${hours}h ${minutes}m`;
+                    
+                    if (days > 0) {
+                        countdownEl.innerText = `Starts in ${days}d ${hours}h`;
+                    } else {
+                        countdownEl.innerText = `Starts in ${hours}h ${minutes}m`;
+                    }
                     countdownEl.style.color = "#23465B";
                     countdownEl.classList.remove("countdown-live");
 
@@ -521,7 +839,7 @@
                     }
                     if (badge) {
                         badge.innerText = "Upcoming";
-                        badge.style.background = "#56738A";
+                        badge.style.background = "#e67e22"; // Set upcoming badge to orange background
                         badge.classList.remove("live-badge");
                     }
                 } else {
@@ -544,15 +862,16 @@
             });
         }
 
-        // Navigation handlers
+        // Navigation and loading handlers
         document.addEventListener('DOMContentLoaded', function () {
+            // Load Dynamic Plans
+            fetchInterviewPlans();
+
             // Start Practicing button
             const startBtn = document.querySelector('.hero .btn.primary');
             if (startBtn) {
                 startBtn.addEventListener('click', function () {
-                    const token = localStorage.getItem('token');
                     if (!token) {
-                        alert('Please login first');
                         window.location.href = 'login.html';
                     } else {
                         window.location.href = 'practice.html';
@@ -564,9 +883,7 @@
             const mockBtn = document.querySelector('.hero .btn.secondary');
             if (mockBtn) {
                 mockBtn.addEventListener('click', function () {
-                    const token = localStorage.getItem('token');
                     if (!token) {
-                        alert('Please login first');
                         window.location.href = 'login.html';
                     } else {
                         window.location.href = 'mockinterview.html';
@@ -578,9 +895,7 @@
             const interviewTypes = document.querySelectorAll('.types span');
             interviewTypes.forEach(type => {
                 type.addEventListener('click', function () {
-                    const token = localStorage.getItem('token');
                     if (!token) {
-                        alert('Please login first');
                         window.location.href = 'login.html';
                         return;
                     }
@@ -589,36 +904,9 @@
                     window.location.href = 'practice.html';
                 });
             });
-
-            // Interview card buttons
-            const actionBtns = document.querySelectorAll('.interview-card .action-btn');
-            actionBtns.forEach(btn => {
-                btn.addEventListener('click', function () {
-                    const token = localStorage.getItem('token');
-                    if (!token) {
-                        alert('Please login first');
-                        window.location.href = 'login.html';
-                        return;
-                    }
-
-                    const card = this.closest('.interview-card');
-                    const link = card.getAttribute('data-link');
-                    const isLive = card.querySelector('.badge')?.innerText === 'Live';
-
-                    if (link && link.startsWith('http')) {
-                        window.open(link, '_blank');
-                    } else if (isLive) {
-                        window.location.href = 'mockinterview.html';
-                    } else if (link) {
-                        window.location.href = link;
-                    } else {
-                        alert('Interview details will be available soon!');
-                    }
-                });
-            });
         });
 
-        // Start countdown timer
+        // Start countdown timer loop
         setInterval(updateCountdowns, 1000);
         updateCountdowns();
     </script>
