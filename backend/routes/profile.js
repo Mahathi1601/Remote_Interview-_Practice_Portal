@@ -57,7 +57,7 @@ router.put('/', protect, async (req, res) => {
 // @desc    Update password
 router.put('/password', protect, async (req, res) => {
     try {
-        const { currentPassword, newPassword } = req.body;
+        const { newPassword } = req.body;
         
         if (!newPassword || newPassword.length < 6) {
             return res.status(400).json({
@@ -66,23 +66,12 @@ router.put('/password', protect, async (req, res) => {
             });
         }
 
-        const user = await User.findById(req.user.id).select('+password');
+        const user = await User.findById(req.user.id);
         
         if (!user) {
             return res.status(404).json({
                 success: false,
                 message: 'User not found'
-            });
-        }
-
-        // Verify current password
-        const bcrypt = require('bcryptjs');
-        const isPasswordMatch = await bcrypt.compare(currentPassword, user.password);
-        
-        if (!isPasswordMatch) {
-            return res.status(401).json({
-                success: false,
-                message: 'Current password is incorrect'
             });
         }
 

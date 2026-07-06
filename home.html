@@ -411,6 +411,108 @@
             outline: none;
             border-color: #23465B !important;
         }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Multi-column layout styles */
+        .interviews-panel {
+            margin-top: 25px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+
+        .interview-column {
+            flex: 1;
+            min-width: 300px;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            border-top: 4px solid #cbd5e1;
+        }
+
+        .interview-column.upcoming {
+            border-top-color: #e67e22;
+        }
+
+        .interview-column.previous {
+            border-top-color: #10b981;
+        }
+
+        .interview-column.missed {
+            border-top-color: #ef4444;
+        }
+
+        .interview-column-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #F1F5F9;
+            padding-bottom: 10px;
+        }
+
+        .interview-column-title h3 {
+            color: #23465B;
+            font-size: 18px;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Toggle details style */
+        .details-toggle-btn {
+            background: none;
+            border: none;
+            color: #23465B;
+            font-weight: 500;
+            font-size: 13px;
+            cursor: pointer;
+            padding: 4px 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 8px;
+            transition: 0.3s;
+        }
+
+        .details-toggle-btn:hover {
+            color: #56738a;
+            text-decoration: underline;
+        }
+
+        .details-panel {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin-top: 8px;
+            font-size: 12px;
+            color: #475569;
+            border-left: 3px solid #cbd5e1;
+            display: none;
+            text-align: left;
+        }
+
+        .details-panel.open {
+            display: block;
+        }
+
+        /* Star rating interaction styles */
+        .star-rating .star {
+            transition: color 0.2s;
+            display: inline-block;
+        }
+
+        .star-rating .star.active {
+            color: #fbbf24;
+        }
     </style>
 </head>
 
@@ -429,7 +531,7 @@
         </div>
     </div>
     <div class="container">
-        <div class="left">
+        <div class="left" style="width: 100%; flex: 1;">
             <div class="hero">
                 <h1>Remote Interview Practice Portal</h1>
                 <p>Master your interview skills and build confidence for your dream job.</p>
@@ -438,6 +540,37 @@
                     <button class="btn secondary">Take Mock Interview</button>
                 </div>
             </div>
+
+            <!-- side-by-side divisions for interview statuses -->
+            <div class="interviews-panel">
+                <!-- Left: Upcoming -->
+                <div class="interview-column upcoming">
+                    <div class="interview-column-title">
+                        <h3><i class="fa-solid fa-calendar-days" style="color: #e67e22;"></i> Upcoming</h3>
+                        <button id="addPlanBtn" style="background: #23465B; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 4px; transition: 0.3s;" onclick="openAddPlanModal()">
+                            <i class="fa-solid fa-plus"></i> Add
+                        </button>
+                    </div>
+                    <div id="upcomingList"></div>
+                </div>
+
+                <!-- Middle: Completed/Previous -->
+                <div class="interview-column previous">
+                    <div class="interview-column-title">
+                        <h3><i class="fa-solid fa-circle-check" style="color: #10b981;"></i> Completed</h3>
+                    </div>
+                    <div id="previousList"></div>
+                </div>
+
+                <!-- Right: Missed -->
+                <div class="interview-column missed">
+                    <div class="interview-column-title">
+                        <h3><i class="fa-solid fa-circle-xmark" style="color: #ef4444;"></i> Missed</h3>
+                    </div>
+                    <div id="missedList"></div>
+                </div>
+            </div>
+
             <h2 class="section-title"><i class="fa-solid fa-star"></i>Main Features</h2>
             <div class="features">
                 <div class="feature-box">
@@ -479,17 +612,6 @@
                         <p>Get Feedback & Improve</p>
                     </div>
                 </div>
-            </div>
-        </div>
-        <div class="right">
-            <div class="right-box">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h3 style="margin: 0; font-size: 20px; color: #23465B;">Upcoming Interviews</h3>
-                    <button id="addPlanBtn" style="background: #23465B; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 4px; transition: 0.3s;" onclick="openAddPlanModal()">
-                        <i class="fa-solid fa-plus"></i> Add
-                    </button>
-                </div>
-                <div id="upcomingList"></div>
             </div>
         </div>
     </div>
@@ -547,6 +669,42 @@
         </div>
     </div>
 
+    <!-- Attendance Survey Modal -->
+    <div id="attendanceModal" class="modal" style="display: none; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 2500;">
+        <div class="modal-content" style="background: white; border-radius: 12px; width: 90%; max-width: 450px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+            <h3 style="color: #23465B; margin-bottom: 15px; font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-circle-question"></i> Interview Feedback</h3>
+            <p id="attendanceQuestion" style="font-size: 14px; color: #475569; margin-bottom: 4px; line-height: 1.5; text-align: left;"></p>
+            
+            <!-- Step 1: Yes / No -->
+            <div id="attendanceStep1" style="display: flex; gap: 12px; justify-content: center; margin-top: 0px;">
+                <button onclick="handleAttendanceResponse(false)" style="padding: 8px 16px; border: none; border-radius: 6px; font-weight: 500; font-size: 13px; cursor: pointer; background: #EF4444; color: white; transition: 0.3s;">No, I Missed It</button>
+                <button onclick="handleAttendanceResponse(true)" style="padding: 8px 16px; border: none; border-radius: 6px; font-weight: 500; font-size: 13px; cursor: pointer; background: #10B981; color: white; transition: 0.3s;">Yes, I Attended</button>
+            </div>
+
+            <!-- Step 2: Details Collection -->
+            <div id="attendanceStep2" class="hidden" style="text-align: left; margin-top: 15px;">
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label style="display: block; font-weight: 600; font-size: 13px; color: #333; margin-bottom: 6px;">Difficulty Level * (out of 5)</label>
+                    <div class="star-rating" style="display: flex; gap: 8px; font-size: 24px; color: #CBD5E1; cursor: pointer;">
+                        <span onclick="setRating(1)" class="star">★</span>
+                        <span onclick="setRating(2)" class="star">★</span>
+                        <span onclick="setRating(3)" class="star">★</span>
+                        <span onclick="setRating(4)" class="star">★</span>
+                        <span onclick="setRating(5)" class="star">★</span>
+                    </div>
+                    <input type="hidden" id="selectedRating" value="0">
+                </div>
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label style="display: block; font-weight: 600; font-size: 13px; color: #333; margin-bottom: 6px;">Topics Asked (Optional)</label>
+                    <textarea id="attendanceTopics" placeholder="e.g. System Design, React closures, behavior scenarios..." rows="3" style="width: 100%; padding: 8px 12px; border: 2px solid #E2E8F0; border-radius: 8px; font-size: 13px; font-family: inherit; resize: vertical;"></textarea>
+                </div>
+                <div style="display: flex; gap: 12px; justify-content: center; margin-top: 10px;">
+                    <button onclick="submitAttendanceDetails()" style="padding: 8px 16px; border: none; border-radius: 6px; font-weight: 500; font-size: 13px; cursor: pointer; background: #23465B; color: white; transition: 0.3s;">Submit & Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         const API_URL = 'http://localhost:5000/api';
         const token = localStorage.getItem('token');
@@ -560,6 +718,9 @@
         }
 
         let interviewPlans = [];
+        let pendingFeedbackQueue = [];
+        let activeFeedbackPlan = null;
+        let selectedDifficulty = 0;
 
         // Fetch user's upcoming interview plans
         async function fetchInterviewPlans() {
@@ -571,6 +732,7 @@
                 if (data.success) {
                     interviewPlans = data.data;
                     renderInterviewPlans();
+                    checkPastInterviews();
                 } else {
                     showToast(data.message || 'Failed to fetch interview plans', 'error');
                 }
@@ -580,64 +742,254 @@
             }
         }
 
-        // Render interview plans dynamically in right-side timeline
-        function renderInterviewPlans() {
-            const container = document.getElementById('upcomingList');
-            if (!container) return;
+        // Check if any scheduled interviews have passed and need attendance confirmation
+        function checkPastInterviews() {
+            const now = new Date();
+            const pastPlans = interviewPlans.filter(plan => {
+                const planTime = new Date(plan.dateTime);
+                const isPast = planTime < now;
+                const isUpcoming = !plan.status || plan.status === 'upcoming';
+                return isPast && isUpcoming;
+            });
 
-            if (interviewPlans.length === 0) {
-                container.innerHTML = `
-                    <div style="text-align: center; padding: 40px 10px; color: #64748B;">
-                        <i class="fa-solid fa-calendar-day" style="font-size: 36px; margin-bottom: 12px; color: #94A3B8; display: block;"></i>
-                        <p style="font-size: 14px; margin-bottom: 16px;">No upcoming interviews planned.</p>
-                        <button onclick="openAddPlanModal()" style="background: #23465B; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; transition: 0.3s; display: inline-flex; align-items: center; gap: 4px; margin: 0 auto;">
-                            <i class="fa-solid fa-plus"></i> Add Plan
-                        </button>
-                    </div>
-                `;
+            if (pastPlans.length > 0 && !activeFeedbackPlan) {
+                pendingFeedbackQueue = pastPlans;
+                processNextFeedback();
+            }
+        }
+
+        // Display the survey dialog for the next past interview in the queue
+        function processNextFeedback() {
+            if (pendingFeedbackQueue.length === 0) {
+                activeFeedbackPlan = null;
+                document.getElementById('attendanceModal').style.display = 'none';
                 return;
             }
 
-            container.innerHTML = interviewPlans.map(plan => {
-                const dateObj = new Date(plan.dateTime);
-                const timeStr = dateObj.toLocaleDateString('en-IN', {
+            activeFeedbackPlan = pendingFeedbackQueue.shift();
+            
+            const dateObj = new Date(activeFeedbackPlan.dateTime);
+            const timeStr = dateObj.toLocaleDateString('en-IN', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric'
+            }) + ', ' + dateObj.toLocaleTimeString('en-IN', {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+            });
+
+            document.getElementById('attendanceQuestion').innerHTML = `Your scheduled interview with <strong>${escapeHTML(activeFeedbackPlan.companyName)}</strong> for the <strong>${escapeHTML(activeFeedbackPlan.role)}</strong> role at <em>${timeStr}</em> has passed. Did you attend this interview?`;
+            
+            // Show step 1 (Yes/No buttons), hide step 2 (Survey form)
+            document.getElementById('attendanceStep1').style.display = 'flex';
+            document.getElementById('attendanceStep2').classList.add('hidden');
+            document.getElementById('attendanceTopics').value = '';
+            setRating(0); // Reset stars
+
+            // Open modal
+            document.getElementById('attendanceModal').style.display = 'flex';
+        }
+
+        function handleAttendanceResponse(attended) {
+            if (attended) {
+                // Show Step 2 to collect difficulty rating and optional topics
+                document.getElementById('attendanceStep1').style.display = 'none';
+                document.getElementById('attendanceStep2').classList.remove('hidden');
+            } else {
+                // Instantly update as missed
+                updatePlanStatus(activeFeedbackPlan._id, {
+                    status: 'missed',
+                    attended: false
+                });
+            }
+        }
+
+        function setRating(val) {
+            selectedDifficulty = val;
+            document.getElementById('selectedRating').value = val;
+            const stars = document.querySelectorAll('.star-rating .star');
+            stars.forEach((star, idx) => {
+                if (idx < val) {
+                    star.classList.add('active');
+                    star.style.color = '#F59E0B'; // Gold
+                } else {
+                    star.classList.remove('active');
+                    star.style.color = '#CBD5E1'; // Gray
+                }
+            });
+        }
+
+        async function submitAttendanceDetails() {
+            const rating = parseInt(document.getElementById('selectedRating').value);
+            const topics = document.getElementById('attendanceTopics').value.trim();
+
+            if (!rating || rating < 1 || rating > 5) {
+                alert('Please rate the interview difficulty (out of 5 stars).');
+                return;
+            }
+
+            await updatePlanStatus(activeFeedbackPlan._id, {
+                status: 'completed',
+                attended: true,
+                difficultyRating: rating,
+                topicsAsked: topics
+            });
+        }
+
+        async function updatePlanStatus(id, updatePayload) {
+            try {
+                const res = await fetch(`${API_URL}/interview-plans/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(updatePayload)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showToast('Interview status updated!');
+                    activeFeedbackPlan = null;
+                    // Reload plans and process the next pending feedback dialog
+                    await fetchInterviewPlans();
+                    processNextFeedback();
+                } else {
+                    showToast(data.message || 'Failed to update status', 'error');
+                }
+            } catch (error) {
+                console.error('Error updating status:', error);
+                showToast('Error updating status', 'error');
+            }
+        }
+
+        // Render interview lists dynamically in three columns
+        function renderInterviewPlans() {
+            const now = new Date();
+            
+            // Filter plans into the 3 groups
+            const upcomingPlans = interviewPlans.filter(p => (!p.status || p.status === 'upcoming') && new Date(p.dateTime) >= now);
+            const completedPlans = interviewPlans.filter(p => p.status === 'completed');
+            const missedPlans = interviewPlans.filter(p => p.status === 'missed');
+
+            const formatDate = (dateStr) => {
+                const dateObj = new Date(dateStr);
+                return dateObj.toLocaleDateString('en-IN', {
                     day: 'numeric',
-                    month: 'long'
+                    month: 'short',
+                    year: 'numeric'
                 }) + ', ' + dateObj.toLocaleTimeString('en-IN', {
                     hour: 'numeric',
                     minute: '2-digit',
                     hour12: true
                 });
+            };
 
-                const linkAttr = plan.interviewLink ? `data-link="${plan.interviewLink}"` : '';
-                const modeVal = plan.mode || 'online';
-
-                return `
-                    <div class="interview-card" data-id="${plan._id}" data-time="${plan.dateTime}" data-mode="${modeVal}" data-notes="${escapeHTML(plan.notes || '')}" ${linkAttr} style="position: relative; padding-right: 36px;">
-                        <button onclick="deleteInterviewPlan('${plan._id}', event)" style="position: absolute; top: 12px; right: 12px; background: none; border: none; color: #EF4444; cursor: pointer; font-size: 14px; opacity: 0.7; transition: 0.3s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7" title="Delete Plan">
-                            <i class="fa-solid fa-trash-can"></i>
+            // 1. Render Upcoming
+            const upcomingContainer = document.getElementById('upcomingList');
+            if (upcomingPlans.length === 0) {
+                upcomingContainer.innerHTML = `
+                    <div style="text-align: center; padding: 30px 10px; color: #64748B;">
+                        <i class="fa-solid fa-calendar-day" style="font-size: 32px; margin-bottom: 8px; color: #94A3B8; display: block;"></i>
+                        <p style="font-size: 13px; margin-bottom: 12px;">No upcoming interviews planned.</p>
+                        <button onclick="openAddPlanModal()" style="background: #23465B; color: white; border: none; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; transition: 0.3s; display: inline-flex; align-items: center; gap: 4px; margin: 0 auto;">
+                            <i class="fa-solid fa-plus"></i> Add Plan
                         </button>
-                        <span class="badge" style="background: #e67e22;">Upcoming</span>
-                        <p><strong>${escapeHTML(plan.companyName)}</strong></p>
-                        <p>${escapeHTML(plan.role)}</p>
-                        <p style="font-size: 12px; color: #56738A; margin-top: 2px;">
-                            <i class="fa-solid ${modeVal === 'offline' ? 'fa-building' : 'fa-video'}" style="margin-right: 4px;"></i>
-                            ${modeVal === 'offline' ? 'Offline (In-person)' : 'Online Interview'}
-                        </p>
-                        <p class="time">${timeStr}</p>
-                        ${plan.notes ? `<p style="font-size: 12px; color: #475569; font-style: italic; margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHTML(plan.notes)}">${escapeHTML(plan.notes)}</p>` : ''}
-                        <p class="countdown"></p>
-                        <button class="action-btn">View</button>
                     </div>
                 `;
-            }).join('');
+            } else {
+                upcomingContainer.innerHTML = upcomingPlans.map(plan => {
+                    const modeVal = plan.mode || 'online';
+                    const linkAttr = plan.interviewLink ? `data-link="${plan.interviewLink}"` : '';
+                    return `
+                        <div class="interview-card" data-id="${plan._id}" data-time="${plan.dateTime}" data-mode="${modeVal}" data-notes="${escapeHTML(plan.notes || '')}" ${linkAttr} style="position: relative; padding-right: 36px; text-align: left;">
+                            <button onclick="deleteInterviewPlan('${plan._id}', event)" style="position: absolute; top: 12px; right: 12px; background: none; border: none; color: #EF4444; cursor: pointer; font-size: 14px; opacity: 0.7; transition: 0.3s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7" title="Delete Plan">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                            <span class="badge" style="background: #e67e22;">Upcoming</span>
+                            <p><strong>${escapeHTML(plan.companyName)}</strong></p>
+                            <p>${escapeHTML(plan.role)}</p>
+                            <p style="font-size: 12px; color: #56738A; margin-top: 2px;">
+                                <i class="fa-solid ${modeVal === 'offline' ? 'fa-building' : 'fa-video'}" style="margin-right: 4px;"></i>
+                                ${modeVal === 'offline' ? 'Offline (In-person)' : 'Online Interview'}
+                            </p>
+                            <p class="time">${formatDate(plan.dateTime)}</p>
+                            <p class="countdown"></p>
+                            <button class="action-btn">View</button>
+                        </div>
+                    `;
+                }).join('');
+            }
 
-            // Bind click events to View buttons and cards dynamically
-            const cards = container.querySelectorAll('.interview-card');
+            // 2. Render Completed
+            const previousContainer = document.getElementById('previousList');
+            if (completedPlans.length === 0) {
+                previousContainer.innerHTML = `
+                    <div style="text-align: center; padding: 30px 10px; color: #64748B;">
+                        <i class="fa-solid fa-circle-check" style="font-size: 32px; margin-bottom: 8px; color: #94A3B8; display: block;"></i>
+                        <p style="font-size: 13px;">No completed interviews yet.</p>
+                    </div>
+                `;
+            } else {
+                previousContainer.innerHTML = completedPlans.map(plan => {
+                    const starsHTML = '★'.repeat(plan.difficultyRating) + '☆'.repeat(5 - plan.difficultyRating);
+                    return `
+                        <div class="interview-card" style="border-left: 4px solid #10b981; position: relative; padding-right: 36px; text-align: left;">
+                            <button onclick="deleteInterviewPlan('${plan._id}', event)" style="position: absolute; top: 12px; right: 12px; background: none; border: none; color: #EF4444; cursor: pointer; font-size: 14px; opacity: 0.7; transition: 0.3s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7" title="Delete Plan">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                            <span class="badge" style="background: #10b981;">Attended</span>
+                            <p><strong>${escapeHTML(plan.companyName)}</strong></p>
+                            <p>${escapeHTML(plan.role)}</p>
+                            <p style="font-size: 12px; color: #64748b;">${formatDate(plan.dateTime)}</p>
+                            <div style="margin-top: 8px; font-size: 13px; color: #1e293b; display: flex; align-items: center; gap: 4px;">
+                                <span style="font-weight:600;">Difficulty:</span> 
+                                <span style="color: #fbbf24; font-size: 15px; letter-spacing: 1px;">${starsHTML}</span>
+                                <span style="font-size: 12px; color: #64748b;">(${plan.difficultyRating}/5)</span>
+                            </div>
+                            <button class="details-toggle-btn" onclick="toggleDetails('${plan._id}', event)">
+                                View More <i class="fa-solid fa-chevron-down" id="toggleIcon-${plan._id}"></i>
+                            </button>
+                            <div class="details-panel" id="details-${plan._id}">
+                                <strong>Topics Asked:</strong>
+                                <p style="margin-top: 4px; line-height: 1.4;">${escapeHTML(plan.topicsAsked) || 'No topics specified.'}</p>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // 3. Render Missed
+            const missedContainer = document.getElementById('missedList');
+            if (missedPlans.length === 0) {
+                missedContainer.innerHTML = `
+                    <div style="text-align: center; padding: 30px 10px; color: #64748B;">
+                        <i class="fa-solid fa-circle-xmark" style="font-size: 32px; margin-bottom: 8px; color: #94A3B8; display: block;"></i>
+                        <p style="font-size: 13px;">No missed interviews.</p>
+                    </div>
+                `;
+            } else {
+                missedContainer.innerHTML = missedPlans.map(plan => {
+                    return `
+                        <div class="interview-card" style="border-left: 4px solid #ef4444; position: relative; padding-right: 36px; text-align: left;">
+                            <button onclick="deleteInterviewPlan('${plan._id}', event)" style="position: absolute; top: 12px; right: 12px; background: none; border: none; color: #EF4444; cursor: pointer; font-size: 14px; opacity: 0.7; transition: 0.3s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7" title="Delete Plan">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                            <span class="badge" style="background: #ef4444;">Missed</span>
+                            <p><strong>${escapeHTML(plan.companyName)}</strong></p>
+                            <p>${escapeHTML(plan.role)}</p>
+                            <p style="font-size: 12px; color: #64748b;">${formatDate(plan.dateTime)}</p>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Bind click events to upcoming lists View buttons
+            const cards = upcomingContainer.querySelectorAll('.interview-card');
             cards.forEach(card => {
                 const btn = card.querySelector('.action-btn');
                 const action = (e) => {
-                    if (e.target.closest('button') && !e.target.closest('.action-btn')) return; // Avoid triggering for delete button
+                    if (e.target.closest('button') && !e.target.closest('.action-btn')) return;
                     const link = card.getAttribute('data-link');
                     const badge = card.querySelector('.badge');
                     const isLive = badge && badge.innerText === 'Live';
@@ -648,7 +1000,6 @@
                     } else if (isLive && mode !== 'offline') {
                         window.location.href = 'mockinterview.html';
                     } else {
-                        // If offline or no link, show detail popup
                         const company = card.querySelector('p strong').innerText;
                         const role = card.querySelectorAll('p')[1].innerText;
                         const time = card.querySelector('.time').innerText;
@@ -662,9 +1013,23 @@
                 card.addEventListener('click', action);
             });
 
-            // Update countdowns immediately
+            // Update countdowns for upcoming cards
             updateCountdowns();
         }
+
+        // Toggle details panel slide
+        window.toggleDetails = function(planId, e) {
+            if (e) e.stopPropagation();
+            const panel = document.getElementById(`details-${planId}`);
+            const icon = document.getElementById(`toggleIcon-${planId}`);
+            if (panel.classList.contains('open')) {
+                panel.classList.remove('open');
+                icon.className = 'fa-solid fa-chevron-down';
+            } else {
+                panel.classList.add('open');
+                icon.className = 'fa-solid fa-chevron-up';
+            }
+        };
 
         // Helper to escape HTML tags to prevent XSS
         function escapeHTML(str) {
@@ -694,7 +1059,7 @@
             
             if (mode === 'offline') {
                 linkGroup.style.display = 'none';
-                linkInput.value = ''; // clear value
+                linkInput.value = '';
             } else {
                 linkGroup.style.display = 'block';
             }
@@ -804,7 +1169,9 @@
 
         // Countdown timer function with ORANGE color for live
         function updateCountdowns() {
-            const cards = document.querySelectorAll(".interview-card");
+            const upcomingContainer = document.getElementById('upcomingList');
+            if (!upcomingContainer) return;
+            const cards = upcomingContainer.querySelectorAll(".interview-card");
 
             cards.forEach(card => {
                 const timeAttr = card.getAttribute("data-time");
@@ -839,7 +1206,7 @@
                     }
                     if (badge) {
                         badge.innerText = "Upcoming";
-                        badge.style.background = "#e67e22"; // Set upcoming badge to orange background
+                        badge.style.background = "#e67e22";
                         badge.classList.remove("live-badge");
                     }
                 } else {

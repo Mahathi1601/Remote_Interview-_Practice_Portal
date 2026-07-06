@@ -32,6 +32,24 @@ const interviewPlanSchema = new mongoose.Schema({
     notes: {
         type: String,
         trim: true
+    },
+    status: {
+        type: String,
+        enum: ['upcoming', 'completed', 'missed'],
+        default: 'upcoming'
+    },
+    attended: {
+        type: Boolean,
+        default: false
+    },
+    difficultyRating: {
+        type: Number,
+        min: 1,
+        max: 5
+    },
+    topicsAsked: {
+        type: String,
+        trim: true
     }
 }, {
     timestamps: true

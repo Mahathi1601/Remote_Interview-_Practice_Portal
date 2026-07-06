@@ -3,13 +3,16 @@ const router = express.Router();
 const { protect } = require('../middleware/auth');
 const PracticeSession = require('../models/PracticeSession');
 const MockInterviewSession = require('../models/MockInterviewSession');
+const mongoose = require('mongoose');
 const Category = require('../models/Category');
+const { generateAISuggestions } = require('../utils/gemini');
 
 // @route   GET /api/dashboard/combined-stats
 // @desc    Get all stats for the dashboard
 router.get('/combined-stats', protect, async (req, res) => {
     try {
         const userId = req.user.id;
+        const userObjectId = new mongoose.Types.ObjectId(userId);
 
         // --- Practice Stats ---
         const practiceSessions = await PracticeSession.find({ userId });
@@ -33,12 +36,12 @@ router.get('/combined-stats', protect, async (req, res) => {
             avgScore: Math.round(categoryStats[cat].total / categoryStats[cat].count)
         }));
 
-        // Practice Trend (Last 7 days)
-        const sevenDaysAgo = new Date();
-        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        // Trend (Last 30 days)
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
         
         const practiceTrend = await PracticeSession.aggregate([
-            { $match: { userId: req.user._id, createdAt: { $gte: sevenDaysAgo } } },
+            { $match: { userId: userObjectId, createdAt: { $gte: thirtyDaysAgo } } },
             { 
                 $group: { 
                     _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
@@ -57,9 +60,9 @@ router.get('/combined-stats', protect, async (req, res) => {
             : 0;
         const videoCount = mockSessions.filter(s => s.hasVideo).length;
 
-        // Mock Trend (Last 7 days)
+        // Mock Trend (Last 30 days)
         const mockTrend = await MockInterviewSession.aggregate([
-            { $match: { userId: req.user._id, createdAt: { $gte: sevenDaysAgo } } },
+            { $match: { userId: userObjectId, createdAt: { $gte: thirtyDaysAgo } } },
             { 
                 $group: { 
                     _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
@@ -170,7 +173,8 @@ router.get('/mock-interview-history', protect, async (req, res) => {
             duration: session.duration,
             feedback: session.feedback,
             strengths: session.strengths || [],
-            improvementAreas: session.improvementAreas || []
+            improvementAreas: session.improvementAreas || [],
+            recordings: session.recordings || []
         }));
 
         res.status(200).json({
@@ -244,9 +248,7 @@ router.get('/recommendations', protect, async (req, res) => {
         const practiceSessions = await PracticeSession.find({ userId }).limit(100);
         const mockSessions = await MockInterviewSession.find({ userId });
 
-        const recommendations = [];
-
-        // Analyze category performance
+        // Compile category stats
         const categoryStats = {};
         practiceSessions.forEach(s => {
             if (!categoryStats[s.categoryName]) {
@@ -256,16 +258,41 @@ router.get('/recommendations', protect, async (req, res) => {
             categoryStats[s.categoryName].count += 1;
         });
 
-        // Find weakest categories
-        const categoryPerformance = Object.entries(categoryStats)
-            .map(([cat, stats]) => ({
-                category: cat,
-                avgScore: stats.total / stats.count
-            }))
-            .sort((a, b) => a.avgScore - b.avgScore);
+        const categoryPerformance = Object.entries(categoryStats).map(([cat, stats]) => ({
+            category: cat,
+            avgScore: Math.round(stats.total / stats.count)
+        }));
 
-        if (categoryPerformance.length > 0) {
-            const weakest = categoryPerformance[0];
+        const mockHistorySummary = mockSessions.slice(-5).map(s => ({
+            interviewType: s.interviewType,
+            technicalScore: s.technicalScore,
+            communicationScore: s.communicationScore,
+            overallScore: s.overallScore,
+            feedback: s.feedback,
+            strengths: s.strengths || [],
+            improvementAreas: s.improvementAreas || []
+        }));
+
+        try {
+            // Try calling Gemini AI to generate personalized suggestions
+            const aiSuggestions = await generateAISuggestions(categoryPerformance, mockHistorySummary);
+            if (aiSuggestions && Array.isArray(aiSuggestions) && aiSuggestions.length > 0) {
+                return res.status(200).json({
+                    success: true,
+                    data: aiSuggestions
+                });
+            }
+        } catch (geminiError) {
+            console.error('Gemini recommendations generation failed, falling back to rule-based logic:', geminiError);
+        }
+
+        const recommendations = [];
+
+        // Find weakest categories
+        const categoryPerformanceSorted = [...categoryPerformance].sort((a, b) => a.avgScore - b.avgScore);
+
+        if (categoryPerformanceSorted.length > 0) {
+            const weakest = categoryPerformanceSorted[0];
             if (weakest.avgScore < 60) {
                 recommendations.push({
                     type: 'weak-category',
@@ -300,6 +327,30 @@ router.get('/recommendations', protect, async (req, res) => {
                     priority: 'high',
                     score: avgMockScore
                 });
+            }
+
+            // Suggest based on the latest mock interview's feedback and improvement areas
+            const latestSession = mockSessions[mockSessions.length - 1];
+            if (latestSession) {
+                if (latestSession.improvementAreas && latestSession.improvementAreas.length > 0) {
+                    let areas = latestSession.improvementAreas.join(', ');
+                    if (areas.length > 100) areas = areas.substring(0, 100) + '...';
+                    recommendations.push({
+                        type: 'performance-improvement',
+                        title: `Focus Areas for ${latestSession.interviewType}`,
+                        description: `Work on: ${areas}. Practice coding questions related to these topics.`,
+                        priority: 'high'
+                    });
+                } else if (latestSession.feedback) {
+                    let feedback = latestSession.feedback;
+                    if (feedback.length > 120) feedback = feedback.substring(0, 120) + '...';
+                    recommendations.push({
+                        type: 'performance-improvement',
+                        title: `Mock Feedback`,
+                        description: `Recent feedback: "${feedback}"`,
+                        priority: 'medium'
+                    });
+                }
             }
         }
 

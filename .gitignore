@@ -1,0 +1,16 @@
+# Dependency directories
+node_modules/
+backend/node_modules/
+
+# Environment variables (critical)
+.env
+backend/.env
+
+# Temporary files and logs
+*.log
+.tempmediaStorage/
+.DS_Store
+
+# Local media uploads
+uploads/
+backend/uploads/

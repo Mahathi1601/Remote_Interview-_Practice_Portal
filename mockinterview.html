@@ -17,6 +17,8 @@
             font-family: 'Poppins', sans-serif;
             background: #F5F7FA;
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         /* Navigation Bar */
@@ -80,7 +82,7 @@
 
         .categories-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 2rem;
         }
 
@@ -788,7 +790,7 @@
 
         /* Footer */
         .footer {
-            margin-top: 30px;
+            margin-top: auto;
             background: #2F5673;
             color: white;
             padding: 25px;
@@ -808,8 +810,17 @@
             to { opacity: 1; }
         }
 
-        /* Responsive */
+        @media (max-width: 1024px) {
+            .categories-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
         @media (max-width: 768px) {
+            .categories-grid {
+                grid-template-columns: 1fr;
+            }
+
             .navbar {
                 flex-direction: column;
                 gap: 1rem;
@@ -932,13 +943,13 @@
                     </div>
 
                     <div class="video-controls">
-                        <button id="toggleCamera" class="control-btn">
+                        <button id="toggleCamera" type="button" class="control-btn">
                             <i class="fas fa-video"></i> Camera
                         </button>
-                        <button id="toggleMic" class="control-btn">
+                        <button id="toggleMic" type="button" class="control-btn">
                             <i class="fas fa-microphone"></i> Mic
                         </button>
-                        <button id="startRecording" class="control-btn record-btn">
+                        <button id="startRecording" type="button" class="control-btn record-btn">
                             <i class="fas fa-circle"></i> Start Recording
                         </button>
                     </div>
@@ -977,10 +988,7 @@
                     </div>
 
                     <div class="action-buttons">
-                        <button id="submitBtn" class="btn-primary" disabled>
-                            <i class="fas fa-check-circle"></i> Submit & Save Recording
-                        </button>
-                        <button id="nextBtn" class="btn-secondary" disabled>
+                        <button id="nextBtn" type="button" class="btn-primary" disabled>
                             Next Question <i class="fas fa-arrow-right"></i>
                         </button>
                     </div>
@@ -1061,36 +1069,53 @@
         // Redirect to login if not authenticated
         if (!token) window.location.href = 'login.html';
 
-        // Mock Interview Questions Data
-        const mockQuestionsData = {
-            technical: {
-                name: "Technical Mock Interview",
-                icon: "💻",
-                questions: [
-                    { id: 1, text: "Explain the JavaScript Event Loop and how it handles asynchronous operations.", difficulty: "Hard", timeLimit: 120 },
-                    { id: 2, text: "What is the difference between CSS animations and JavaScript animations?", difficulty: "Medium", timeLimit: 120 },
-                    { id: 3, text: "How would you optimize a React application that's rendering slowly?", difficulty: "Hard", timeLimit: 120 },
-                    { id: 4, text: "Explain closures in JavaScript with a practical example.", difficulty: "Medium", timeLimit: 120 },
-                    { id: 5, text: "What are the differences between SQL and NoSQL databases?", difficulty: "Medium", timeLimit: 120 }
-                ]
-            },
-            hr: {
-                name: "HR Mock Interview",
-                icon: "👔",
-                questions: [
-                    { id: 6, text: "Tell me about yourself and why you're interested in this position.", difficulty: "Easy", timeLimit: 120 },
-                    { id: 7, text: "Describe a time you had a conflict with a team member. How did you resolve it?", difficulty: "Medium", timeLimit: 120 },
-                    { id: 8, text: "Where do you see yourself in 5 years?", difficulty: "Easy", timeLimit: 120 },
-                    { id: 9, text: "What are your greatest strengths and weaknesses?", difficulty: "Medium", timeLimit: 120 },
-                    { id: 10, text: "Why should we hire you?", difficulty: "Medium", timeLimit: 120 }
-                ]
-            }
+        let categories = [];
+        const categoryIcons = {
+            'Frontend Development': '💻',
+            'Backend Development': '⚙️',
+            'DevOps & Cloud Engineering': '☁️',
+            'System Design': '🏛️',
+            'Data Science & Machine Learning': '📊',
+            'Mobile App Development': '📱',
+            'Product Management & Strategy': '🎯',
+            'HR & Behavioral': '👔'
+        };
+        const categoryDescriptions = {
+            'Frontend Development': 'Practice frontend, UI layouts, styling, frameworks, and browser performance questions.',
+            'Backend Development': 'Practice API design, databases, caching, concurrency, and security questions.',
+            'DevOps & Cloud Engineering': 'Practice CI/CD pipelines, Docker, Kubernetes, cloud architectures, and automation.',
+            'System Design': 'Practice scalability, load balancing, microservices, and distributed architecture design.',
+            'Data Science & Machine Learning': 'Practice statistical models, data cleaning, algorithms, neural networks, and training pipeline questions.',
+            'Mobile App Development': 'Practice iOS/Android design patterns, state management, offline storage, and performance optimization.',
+            'Product Management & Strategy': 'Practice product metrics, roadmaps, trade-offs, and user growth strategy questions.',
+            'HR & Behavioral': 'Practice conflict resolution, leadership, situational questions, and soft-skill responses.'
         };
 
-        const categories = [
-            { id: "technical", name: "Technical Mock Interview", icon: "💻", description: "Practice technical questions with video recording" },
-            { id: "hr", name: "HR Mock Interview", icon: "👔", description: "Practice behavioral questions with video recording" }
-        ];
+        // Load Categories
+        async function loadCategories() {
+            try {
+                const res = await fetch(`${API_URL}/categories`);
+                const data = await res.json();
+                if (data.success) {
+                    categories = data.data;
+                    categoriesGrid.innerHTML = categories.map(cat => {
+                        const icon = categoryIcons[cat.name] || '🎯';
+                        const desc = categoryDescriptions[cat.name] || 'Practice behavioral and technical questions with video recording';
+                        return `
+                            <div class="category-card" onclick="startMockInterview('${cat._id}', '${cat.name}')">
+                                <div class="category-icon">${icon}</div>
+                                <h3>${cat.name}</h3>
+                                <p>${desc}</p>
+                                <button class="start-btn">Start Mock Interview →</button>
+                            </div>
+                        `;
+                    }).join('');
+                }
+            } catch (err) {
+                console.error("Error loading categories:", err);
+                categoriesGrid.innerHTML = '<p class="error-msg" style="grid-column: 1/-1; text-align: center; color: #dc2626;">Failed to load interview domains.</p>';
+            }
+        }
 
         // State Management
         let currentCategory = null;
@@ -1119,7 +1144,6 @@
         const recordingsList = document.getElementById('recordingsList');
         const recordingsSection = document.getElementById('recordingsSection');
         const questionText = document.getElementById('questionText');
-        const submitBtn = document.getElementById('submitBtn');
         const nextBtn = document.getElementById('nextBtn');
         const timerDisplay = document.getElementById('timerDisplay');
         const totalQuestionsSpan = document.getElementById('totalQuestions');
@@ -1135,39 +1159,64 @@
         const confidenceFill = document.getElementById('confidenceFill');
         const userVideo = document.getElementById('userVideo');
 
-        // Load Categories
-        function loadCategories() {
-            categoriesGrid.innerHTML = categories.map(cat => `
-                <div class="category-card" onclick="startMockInterview('${cat.id}')">
-                    <div class="category-icon">${cat.icon}</div>
-                    <h3>${cat.name}</h3>
-                    <p>${cat.description}</p>
-                    <button class="start-btn">Start Mock Interview →</button>
-                </div>
-            `).join('');
-        }
+        // categoriesGrid definition is below, so async loadCategories will run correctly after initialization.
 
         // Start Mock Interview
-        window.startMockInterview = async function(categoryId) {
-            currentCategory = mockQuestionsData[categoryId];
-            currentQuestions = [...currentCategory.questions];
-            recordings = new Array(currentQuestions.length).fill(null);
-            confidences = new Array(currentQuestions.length).fill(null);
-            currentIndex = 0;
-            
-            currentCategorySpan.textContent = `${currentCategory.icon} ${currentCategory.name}`;
-            totalQuestionsSpan.textContent = currentQuestions.length;
-            totalTimeSpan.textContent = currentQuestions.length * 2;
-            completedCountSpan.textContent = `0/${currentQuestions.length}`;
-            
-            buildQuestionNav();
-            await initCamera();
-            loadQuestion(0);
-            
-            categorySection.style.display = 'none';
-            mockArea.style.display = 'block';
-            sessionStartTime = Date.now();
-            showToast(`Started ${currentCategory.name}`, 'success');
+        window.startMockInterview = async function(categoryId, categoryName) {
+            try {
+                // Show loading indicator
+                categoriesGrid.innerHTML = '<p class="status-msg" style="grid-column: 1/-1; text-align: center; color: #23465B;"><i class="fa-solid fa-spinner fa-spin"></i> Sourcing interview questions...</p>';
+                
+                const res = await fetch(`${API_URL}/mock/questions?categoryId=${categoryId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                
+                if (!data.success) {
+                    showToast(data.message || 'Error loading questions', 'error');
+                    loadCategories();
+                    return;
+                }
+
+                currentCategory = {
+                    name: categoryName,
+                    icon: categoryIcons[categoryName] || '🎯'
+                };
+                currentQuestions = data.data.map(q => ({
+                    id: q._id,
+                    text: q.questionText,
+                    difficulty: q.difficulty,
+                    timeLimit: q.timeLimit || 120
+                }));
+
+                recordings = new Array(currentQuestions.length).fill(null);
+                confidences = new Array(currentQuestions.length).fill(null);
+                currentIndex = 0;
+                
+                currentCategorySpan.textContent = `${currentCategory.icon} ${currentCategory.name}`;
+                totalQuestionsSpan.textContent = currentQuestions.length;
+                totalTimeSpan.textContent = currentQuestions.length * 2;
+                completedCountSpan.textContent = `0/${currentQuestions.length}`;
+                
+                buildQuestionNav();
+                try {
+                    await initCamera();
+                } catch (cameraErr) {
+                    alert(cameraErr.message);
+                    loadCategories();
+                    return;
+                }
+                loadQuestion(0);
+                
+                categorySection.style.display = 'none';
+                mockArea.style.display = 'block';
+                sessionStartTime = Date.now();
+                showToast(`Started ${currentCategory.name} Mock Interview`, 'success');
+            } catch (err) {
+                console.error("Error starting mock interview:", err);
+                showToast('Failed to start mock session', 'error');
+                loadCategories();
+            }
         };
 
         // Initialize Camera
@@ -1175,9 +1224,10 @@
             try {
                 mediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
                 userVideo.srcObject = mediaStream;
+                return true;
             } catch (err) {
                 console.error('Camera error:', err);
-                showToast('Please allow camera and microphone access', 'error');
+                throw new Error('Please allow camera and microphone access to start the mock interview.');
             }
         }
 
@@ -1221,8 +1271,12 @@
             const completed = recordings.filter(r => r !== null).length;
             completedCountSpan.textContent = `${completed}/${currentQuestions.length}`;
             
-            submitBtn.disabled = recordings[index] !== null;
-            nextBtn.disabled = recordings[index] === null;
+            if (index === currentQuestions.length - 1) {
+                nextBtn.innerHTML = 'Submit Session <i class="fas fa-check-circle"></i>';
+            } else {
+                nextBtn.innerHTML = 'Next Question <i class="fas fa-arrow-right"></i>';
+            }
+            checkEnableNext();
             
             // Show recordings section if any exist
             updateRecordingsList();
@@ -1232,7 +1286,14 @@
         window.setConfidence = function(level) {
             currentConfidence = level;
             updateConfidenceUI();
+            checkEnableNext();
         };
+
+        function checkEnableNext() {
+            const hasRecording = recordings[currentIndex] !== null;
+            const hasConfidence = currentConfidence !== null;
+            nextBtn.disabled = !(hasRecording && hasConfidence);
+        }
 
         function updateConfidenceUI() {
             document.querySelectorAll('.confidence-btn').forEach(btn => {
@@ -1287,7 +1348,7 @@
             mediaRecorder.onstop = () => {
                 const blob = new Blob(recordedChunks, { type: 'video/webm' });
                 const url = URL.createObjectURL(blob);
-                recordings[currentIndex] = { url, blob, timestamp: Date.now() };
+                recordings[currentIndex] = { url, blob, uploadedUrl: null, timestamp: Date.now() };
                 
                 const recordBtn = document.getElementById('startRecording');
                 recordBtn.classList.remove('recording');
@@ -1295,8 +1356,8 @@
                 document.getElementById('recordingIndicator').classList.remove('active');
                 isRecording = false;
                 
-                showToast('Recording saved! Please rate your confidence and submit.', 'success');
-                submitBtn.disabled = false;
+                showToast('Recording saved! Please rate your confidence.', 'success');
+                checkEnableNext();
             };
             
             mediaRecorder.start();
@@ -1344,33 +1405,73 @@
             }
         });
 
-        // Submit Answer
-        function submitAnswer() {
-            if (!recordings[currentIndex]) {
-                showToast('Please record your answer first!', 'error');
-                return;
+        async function handleNextClick() {
+            try {
+                if (!recordings[currentIndex]) {
+                    showToast('Please record your answer first!', 'error');
+                    return;
+                }
+                
+                if (!currentConfidence) {
+                    showToast('Please rate your confidence level!', 'error');
+                    return;
+                }
+                
+                confidences[currentIndex] = currentConfidence;
+                
+                const nextBtn = document.getElementById('nextBtn');
+                const originalText = nextBtn.innerHTML;
+                nextBtn.disabled = true;
+                nextBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving Answer...';
+
+                try {
+                    const rec = recordings[currentIndex];
+                    if (rec && rec.blob && !rec.uploadedUrl) {
+                        const res = await fetch(`${API_URL}/mock/upload-video`, {
+                            method: 'POST',
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'video/webm'
+                            },
+                            body: rec.blob
+                        });
+                        const uploadData = await res.json();
+                        if (uploadData.success) {
+                            recordings[currentIndex].uploadedUrl = uploadData.videoUrl;
+                            console.log('Video uploaded successfully:', uploadData.videoUrl);
+                        }
+                    }
+                } catch (err) {
+                    console.error('Video upload failed:', err);
+                }
+                
+                // Update navigation
+                const navItems = document.querySelectorAll('.question-item');
+                if (navItems[currentIndex]) {
+                    navItems[currentIndex].classList.add('completed');
+                }
+                
+                const completed = recordings.filter(r => r !== null).length;
+                completedCountSpan.textContent = `${completed}/${currentQuestions.length}`;
+                
+                updateRecordingsList();
+                
+                nextBtn.disabled = false;
+                nextBtn.innerHTML = originalText;
+                
+                showToast('Answer and video saved!', 'success');
+
+                // Move to next question or complete session
+                if (currentIndex + 1 < currentQuestions.length) {
+                    currentIndex++;
+                    loadQuestion(currentIndex);
+                } else {
+                    await completeInterview();
+                }
+            } catch (err) {
+                console.error("Error in handleNextClick:", err);
+                showToast("An error occurred. Please try again.", "error");
             }
-            
-            if (!currentConfidence) {
-                showToast('Please rate your confidence level!', 'error');
-                return;
-            }
-            
-            confidences[currentIndex] = currentConfidence;
-            
-            // Update navigation
-            const navItems = document.querySelectorAll('.question-item');
-            navItems[currentIndex].classList.add('completed');
-            
-            const completed = recordings.filter(r => r !== null).length;
-            completedCountSpan.textContent = `${completed}/${currentQuestions.length}`;
-            
-            updateRecordingsList();
-            
-            submitBtn.disabled = true;
-            nextBtn.disabled = false;
-            
-            showToast('Answer saved!', 'success');
         }
 
         // Update Recordings List
@@ -1378,10 +1479,10 @@
             const hasRecordings = recordings.some(r => r !== null);
             recordingsSection.style.display = hasRecordings ? 'block' : 'none';
             
-            const completedRecordings = recordings.filter((r, idx) => r !== null).map((r, idx) => {
-                const originalIdx = recordings.findIndex((rec, i) => rec === r);
-                return { ...r, idx: originalIdx };
-            });
+            const completedRecordings = recordings.map((r, idx) => {
+                if (r === null) return null;
+                return { ...r, idx };
+            }).filter(r => r !== null);
             
             if (completedRecordings.length === 0) return;
             
@@ -1396,7 +1497,7 @@
                             </span>
                         </div>
                     </div>
-                    <button class="view-video-btn" onclick="playRecording(${rec.idx})">
+                    <button class="view-video-btn" type="button" onclick="playRecording(${rec.idx})">
                         <i class="fas fa-play"></i> Play
                     </button>
                 </div>
@@ -1415,7 +1516,7 @@
             }
         };
 
-        function closeVideoModal() {
+        window.closeVideoModal = function() {
             const modal = document.getElementById('videoModal');
             const video = document.getElementById('playbackVideo');
             video.pause();
@@ -1423,18 +1524,8 @@
             modal.style.display = 'none';
         }
 
-        // Next Question
-        function nextQuestion() {
-            if (currentIndex + 1 < currentQuestions.length) {
-                currentIndex++;
-                loadQuestion(currentIndex);
-            } else {
-                completeInterview();
-            }
-        }
-
         // Complete Interview
-        function completeInterview() {
+        async function completeInterview() {
             const answeredCount = recordings.filter(r => r !== null).length;
             const timeSpent = Math.floor((Date.now() - sessionStartTime) / 1000 / 60);
             const timeSpentSeconds = Math.floor((Date.now() - sessionStartTime) / 1000);
@@ -1468,38 +1559,40 @@
             localStorage.setItem('mockInterviewHistory', JSON.stringify(history.slice(0, 20)));
             
             // Save to Backend Database
-            saveMockInterviewToBackend(answeredCount, avgConfidence, timeSpentSeconds);
+            await saveMockInterviewToBackend(answeredCount, avgConfidence, timeSpentSeconds);
             
-            // Show modal
-            finalScoreSpan.textContent = answeredCount;
-            timeSpentSpan.textContent = `${timeSpent} min`;
-            avgConfidenceDisplay.textContent = `${Math.round(avgConfidence)}%`;
-            confidenceFill.style.width = `${avgConfidence}%`;
-            
-            if (avgConfidence >= 70) confidenceFill.style.background = '#28a745';
-            else if (avgConfidence >= 40) confidenceFill.style.background = '#ffc107';
-            else confidenceFill.style.background = '#dc3545';
-            
-            completionModal.style.display = 'flex';
-            showToast(`Mock Interview completed! Average confidence: ${Math.round(avgConfidence)}%`, 'success');
+            showToast(`Mock Interview completed! Redirecting to Dashboard...`, 'success');
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 1000);
         }
 
         // Save Mock Interview to Backend Database
         async function saveMockInterviewToBackend(answeredCount, avgConfidence, duration) {
             try {
                 const token = localStorage.getItem('token');
+                const firstVideo = recordings.find(r => r && r.uploadedUrl);
                 const payload = {
                     interviewType: currentCategory.name,
                     confidenceScore: Math.round(avgConfidence),
                     overallScore: Math.round(avgConfidence),
                     hasVideo: recordings.some(r => r !== null),
+                    videoUrl: firstVideo ? firstVideo.uploadedUrl : null,
                     videoDuration: duration,
                     questionsAsked: currentQuestions.length,
                     questionsCorrect: answeredCount,
                     duration: duration,
                     feedback: `Completed ${answeredCount} out of ${currentQuestions.length} questions`,
                     strengths: [],
-                    improvementAreas: []
+                    improvementAreas: [],
+                    recordings: currentQuestions.map((q, idx) => {
+                        const rec = recordings[idx];
+                        return {
+                            questionText: q.text,
+                            videoUrl: rec ? rec.uploadedUrl : null,
+                            confidence: confidences[idx] || 'medium'
+                        };
+                    }).filter(r => r.videoUrl !== null)
                 };
 
                 const response = await fetch(`${API_URL}/mock/submit`, {
@@ -1554,8 +1647,7 @@
             }
         });
 
-        submitBtn.addEventListener('click', submitAnswer);
-        nextBtn.addEventListener('click', nextQuestion);
+        nextBtn.addEventListener('click', handleNextClick);
 
         document.getElementById('practiceAgainBtn').addEventListener('click', () => {
             completionModal.style.display = 'none';

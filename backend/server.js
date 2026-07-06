@@ -5,7 +5,7 @@ const connectDB = require('./config/database');
 const path = require('path');
 
 // Load env vars
-dotenv.config();
+dotenv.config({ path: path.join(__dirname, '.env') });
 
 const app = express();
 
@@ -31,6 +31,15 @@ app.use('/api/dashboard', require('./routes/dashboard'));
 app.use('/api/categories', require('./routes/categories'));
 app.use('/api/questions', require('./routes/questions'));
 app.use('/api/interview-plans', require('./routes/interviewPlans'));
+
+// Serve uploads from external temp directory to prevent hot reload loops
+const os = require('os');
+const fs = require('fs');
+const externalUploadsDir = path.join(os.tmpdir(), 'interview-portal-uploads');
+if (!fs.existsSync(externalUploadsDir)) {
+    fs.mkdirSync(externalUploadsDir, { recursive: true });
+}
+app.use('/uploads', express.static(externalUploadsDir));
 
 // Serve static frontend files
 app.use(express.static(path.join(__dirname, '../')));

@@ -494,6 +494,44 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        .password-input-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+        
+        .password-input-container input {
+            padding-right: 45px !important;
+        }
+
+        .password-toggle-btn {
+            position: absolute;
+            right: 15px;
+            background: none;
+            border: none;
+            color: #64748b;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .password-toggle-btn:hover {
+            color: #23465B;
+        }
+
+        .req-met {
+            color: #10B981 !important;
+        }
+        
+        .req-met i {
+            color: #10B981 !important;
+        }
     </style>
 </head>
 <body>
@@ -575,6 +613,16 @@
                                 <input type="date" id="dob">
                             </div>
                         </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label><i class="fab fa-linkedin" style="color: #0077b5; margin-right: 6px;"></i>LinkedIn Profile</label>
+                                <input type="url" id="linkedinProfile" placeholder="https://linkedin.com/in/username">
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fa-solid fa-code" style="color: #ffa116; margin-right: 6px;"></i>LeetCode Profile</label>
+                                <input type="url" id="leetcodeProfile" placeholder="https://leetcode.com/username">
+                            </div>
+                        </div>
                         <div class="form-group">
                             <label>Bio / About Me</label>
                             <textarea id="bio" rows="3" placeholder="Tell us about yourself..."></textarea>
@@ -612,31 +660,63 @@
                 </div>
 
                 <!-- Change Password -->
-                <div style="margin-top: 2rem;">
-                    <h3 class="section-title">
-                        <i class="fas fa-lock"></i> Change Password
-                    </h3>
-                    <form id="passwordForm">
-                        <div class="form-group">
-                            <label>Current Password</label>
-                            <input type="password" id="currentPassword" placeholder="Enter current password">
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>New Password</label>
-                                <input type="password" id="newPassword" placeholder="Enter new password">
-                            </div>
-                            <div class="form-group">
-                                <label>Confirm New Password</label>
-                                <input type="password" id="confirmPassword" placeholder="Confirm new password">
-                            </div>
-                        </div>
-                        <button type="submit" class="btn-save">
-                            <i class="fas fa-key"></i> Update Password
-                        </button>
-                    </form>
+                <div style="margin-top: 2rem; display: flex; justify-content: flex-start;">
+                    <button onclick="openPasswordModal()" class="btn-save" style="background: #23465B; display: inline-flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-key"></i> Change Password
+                    </button>
                 </div>
             </main>
+        </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div id="passwordModal" class="modal">
+        <div class="modal-content" style="padding: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #E2E8F0; padding-bottom: 12px; margin-bottom: 20px;">
+                <h3 style="color: #23465B; margin: 0; font-size: 18px; font-weight: 600;"><i class="fa-solid fa-lock" style="margin-right: 8px;"></i>Change Password</h3>
+                <button onclick="closePasswordModal()" style="background: none; border: none; color: #64748B; font-size: 20px; cursor: pointer;"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="passwordForm" onsubmit="submitPasswordChange(event)">
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label style="display: block; font-weight: 600; font-size: 13px; color: #333; margin-bottom: 6px;">New Password</label>
+                    <div class="password-input-container">
+                        <input type="password" id="newPassword" required placeholder="Enter new password" oninput="checkPasswordStrength(this.value)" style="width: 100%; padding: 10px 14px; border: 2px solid #E2E8F0; border-radius: 8px; font-size: 14px; font-family: inherit;">
+                        <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('newPassword', this)" style="top: 50%; transform: translateY(-50%);"><i class="fa-solid fa-eye"></i></button>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label style="display: block; font-weight: 600; font-size: 13px; color: #333; margin-bottom: 6px;">Confirm New Password</label>
+                    <div class="password-input-container">
+                        <input type="password" id="confirmPassword" required placeholder="Confirm new password" style="width: 100%; padding: 10px 14px; border: 2px solid #E2E8F0; border-radius: 8px; font-size: 14px; font-family: inherit;">
+                        <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('confirmPassword', this)" style="top: 50%; transform: translateY(-50%);"><i class="fa-solid fa-eye"></i></button>
+                    </div>
+                </div>
+                
+                <!-- Password Strength Meter -->
+                <div style="margin-top: 10px; margin-bottom: 15px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
+                        <span style="color: #64748B;">Password Strength:</span>
+                        <span id="strengthText" style="font-weight: 600; color: #94A3B8;">None</span>
+                    </div>
+                    <div style="background: #E2E8F0; height: 6px; border-radius: 4px; overflow: hidden;">
+                        <div id="strengthBar" style="height: 100%; width: 0%; transition: width 0.3s, background-color 0.3s;"></div>
+                    </div>
+                </div>
+
+                <!-- Requirements Checklist -->
+                <div style="margin-top: 12px; margin-bottom: 20px; font-size: 12px; color: #64748B; background: #F8FAFC; padding: 12px; border-radius: 8px; border: 1px solid #E2E8F0; text-align: left;">
+                    <div style="font-weight: 600; margin-bottom: 6px; color: #475569;">Password Requirements:</div>
+                    <div id="req-length" style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px; color: #EF4444; transition: 0.3s;"><i class="fa-solid fa-circle-xmark"></i> At least 6 characters</div>
+                    <div id="req-number" style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px; color: #EF4444; transition: 0.3s;"><i class="fa-solid fa-circle-xmark"></i> At least 1 number</div>
+                    <div id="req-uppercase" style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px; color: #EF4444; transition: 0.3s;"><i class="fa-solid fa-circle-xmark"></i> At least 1 uppercase letter</div>
+                    <div id="req-special" style="display: flex; align-items: center; gap: 6px; color: #EF4444; transition: 0.3s;"><i class="fa-solid fa-circle-xmark"></i> At least 1 special character</div>
+                </div>
+
+                <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                    <button type="button" onclick="closePasswordModal()" style="padding: 10px 20px; border: none; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; background: #E2E8F0; color: #475569; transition: 0.3s;">Cancel</button>
+                    <button type="submit" style="padding: 10px 20px; border: none; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; background: #23465B; color: white; transition: 0.3s;">Update Password</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -712,6 +792,8 @@
                     document.getElementById('dob').value = user.profile?.dateOfBirth ? user.profile.dateOfBirth.split('T')[0] : '';
                     document.getElementById('bio').value = user.profile?.education || '';
                     document.getElementById('experienceLevel').value = user.profile?.yearsOfExperience || '';
+                    document.getElementById('linkedinProfile').value = user.profile?.linkedinProfile || '';
+                    document.getElementById('leetcodeProfile').value = user.profile?.leetcodeProfile || '';
                     document.getElementById('profileName').textContent = user.name || 'User';
                     document.getElementById('profileEmail').textContent = user.email || '';
                     
@@ -900,7 +982,9 @@
                             ...user.profile,
                             mobileNumber: phone,
                             dateOfBirth: dob,
-                            education: bio
+                            education: bio,
+                            linkedinProfile: document.getElementById('linkedinProfile').value.trim(),
+                            leetcodeProfile: document.getElementById('leetcodeProfile').value.trim()
                         }
                     })
                 });
@@ -918,15 +1002,25 @@
             }
         });
         
-        // Change password
-        document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+        // Change password modal triggers
+        function openPasswordModal() {
+            document.getElementById('passwordModal').style.display = 'flex';
+        }
+        
+        function closePasswordModal() {
+            document.getElementById('passwordModal').style.display = 'none';
+            document.getElementById('passwordForm').reset();
+            checkPasswordStrength(''); // Reset checklist
+        }
+
+        // Change password submit handler
+        window.submitPasswordChange = async function(e) {
             e.preventDefault();
             
-            const currentPassword = document.getElementById('currentPassword').value;
             const newPassword = document.getElementById('newPassword').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
             
-            if (!currentPassword || !newPassword || !confirmPassword) {
+            if (!newPassword || !confirmPassword) {
                 showToast('Please fill all password fields', 'error');
                 return;
             }
@@ -940,6 +1034,12 @@
                 showToast('Password must be at least 6 characters', 'error');
                 return;
             }
+
+            const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>_]/.test(newPassword);
+            if (!hasSpecialChar) {
+                showToast('Password must contain at least one special character', 'error');
+                return;
+            }
             
             try {
                 const res = await fetch(`${API_URL}/profile/password`, {
@@ -949,7 +1049,6 @@
                         'Authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify({
-                        currentPassword,
                         newPassword
                     })
                 });
@@ -957,9 +1056,7 @@
                 const data = await res.json();
                 if (data.success) {
                     showToast('Password changed successfully!', 'success');
-                    document.getElementById('currentPassword').value = '';
-                    document.getElementById('newPassword').value = '';
-                    document.getElementById('confirmPassword').value = '';
+                    closePasswordModal();
                 } else {
                     showToast(data.message || 'Failed to change password', 'error');
                 }
@@ -967,7 +1064,7 @@
                 console.error('Error changing password:', error);
                 showToast('Error changing password', 'error');
             }
-        });
+        };
         
         // Avatar functions
         function openAvatarModal() {
@@ -1008,7 +1105,6 @@
         }
         
         function deleteAccount() {
-            // Clear all user data
             localStorage.removeItem('user');
             localStorage.removeItem('isLoggedIn');
             localStorage.removeItem('interviewHistory');
@@ -1036,6 +1132,95 @@
         // Initialize
         loadUserData();
         
+        // Toggle password visibility (show/hide)
+        function togglePasswordVisibility(inputId, btn) {
+            const input = document.getElementById(inputId);
+            const icon = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fa-solid fa-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'fa-solid fa-eye';
+            }
+        }
+
+        // Check password strength and update requirements checklist live
+        function checkPasswordStrength(password) {
+            const bar = document.getElementById('strengthBar');
+            const text = document.getElementById('strengthText');
+            
+            const reqLength = document.getElementById('req-length');
+            const reqNumber = document.getElementById('req-number');
+            const reqUppercase = document.getElementById('req-uppercase');
+            const reqSpecial = document.getElementById('req-special');
+            
+            let score = 0;
+            
+            // 1. Length check
+            if (password.length >= 6) {
+                score++;
+                reqLength.style.color = '#10B981';
+                reqLength.querySelector('i').className = 'fa-solid fa-circle-check';
+            } else {
+                reqLength.style.color = '#EF4444';
+                reqLength.querySelector('i').className = 'fa-solid fa-circle-xmark';
+            }
+            
+            // 2. Number check
+            if (/\d/.test(password)) {
+                score++;
+                reqNumber.style.color = '#10B981';
+                reqNumber.querySelector('i').className = 'fa-solid fa-circle-check';
+            } else {
+                reqNumber.style.color = '#EF4444';
+                reqNumber.querySelector('i').className = 'fa-solid fa-circle-xmark';
+            }
+            
+            // 3. Uppercase check
+            if (/[A-Z]/.test(password)) {
+                score++;
+                reqUppercase.style.color = '#10B981';
+                reqUppercase.querySelector('i').className = 'fa-solid fa-circle-check';
+            } else {
+                reqUppercase.style.color = '#EF4444';
+                reqUppercase.querySelector('i').className = 'fa-solid fa-circle-xmark';
+            }
+
+            // 4. Special character check
+            if (/[!@#$%^&*(),.?":{}|<>_]/.test(password)) {
+                score++;
+                reqSpecial.style.color = '#10B981';
+                reqSpecial.querySelector('i').className = 'fa-solid fa-circle-check';
+            } else {
+                reqSpecial.style.color = '#EF4444';
+                reqSpecial.querySelector('i').className = 'fa-solid fa-circle-xmark';
+            }
+            
+            // Update meter width and colors (out of 4 requirements now)
+            if (password.length === 0) {
+                bar.style.width = '0%';
+                bar.style.backgroundColor = '#E2E8F0';
+                text.innerText = 'None';
+                text.style.color = '#94A3B8';
+            } else if (score <= 2) {
+                bar.style.width = `${score * 25}%`;
+                bar.style.backgroundColor = '#EF4444';
+                text.innerText = 'Weak';
+                text.style.color = '#EF4444';
+            } else if (score === 3) {
+                bar.style.width = '75%';
+                bar.style.backgroundColor = '#F59E0B';
+                text.innerText = 'Medium';
+                text.style.color = '#F59E0B';
+            } else if (score === 4) {
+                bar.style.width = '100%';
+                bar.style.backgroundColor = '#10B981';
+                text.innerText = 'Strong';
+                text.style.color = '#10B981';
+            }
+        }
+
         // Close modals when clicking outside
         window.onclick = (event) => {
             if (event.target === document.getElementById('avatarModal')) {
@@ -1043,6 +1228,9 @@
             }
             if (event.target === document.getElementById('deleteModal')) {
                 closeDeleteModal();
+            }
+            if (event.target === document.getElementById('passwordModal')) {
+                closePasswordModal();
             }
         };
     </script>

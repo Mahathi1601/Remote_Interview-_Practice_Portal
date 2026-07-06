@@ -61,6 +61,15 @@ const MockInterviewSessionSchema = new mongoose.Schema({
         min: 0,
         max: 100
     },
+    recordings: [{
+        questionText: String,
+        videoUrl: String,
+        confidence: String,
+        createdAt: {
+            type: Date,
+            default: Date.now
+        }
+    }],
     createdAt: {
         type: Date,
         default: Date.now

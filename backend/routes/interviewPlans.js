@@ -99,4 +99,48 @@ router.delete('/:id', protect, async (req, res) => {
     }
 });
 
+// @route   PUT /api/interview-plans/:id
+// @desc    Update an interview plan (e.g. mark completed/missed, add rating and topics)
+// @access  Private
+router.put('/:id', protect, async (req, res) => {
+    try {
+        const { status, attended, difficultyRating, topicsAsked } = req.body;
+        
+        let plan = await InterviewPlan.findById(req.params.id);
+
+        if (!plan) {
+            return res.status(404).json({
+                success: false,
+                message: 'Interview plan not found'
+            });
+        }
+
+        // Make sure user owns the plan
+        if (plan.user.toString() !== req.user.id) {
+            return res.status(401).json({
+                success: false,
+                message: 'Not authorized to update this plan'
+            });
+        }
+
+        if (status) plan.status = status;
+        if (attended !== undefined) plan.attended = attended;
+        if (difficultyRating !== undefined) plan.difficultyRating = difficultyRating;
+        if (topicsAsked !== undefined) plan.topicsAsked = topicsAsked;
+
+        await plan.save();
+
+        res.status(200).json({
+            success: true,
+            data: plan
+        });
+    } catch (error) {
+        console.error('Error updating interview plan:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Server error'
+        });
+    }
+});
+
 module.exports = router;

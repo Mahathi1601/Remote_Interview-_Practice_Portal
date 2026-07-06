@@ -155,11 +155,9 @@ router.post('/forgot-password', [
             { upsert: true, new: true }
         );
 
-        // Simulate email
-        console.log('----------------------------------------');
-        console.log(`📧 Verification code for ${email}: ${code}`);
-        console.log(`🔑 Use this code to reset password: ${code}`);
-        console.log('----------------------------------------');
+        // Send OTP email
+        const { sendOTPEmail } = require('../utils/mailer');
+        await sendOTPEmail(email, code);
 
         res.status(200).json({
             success: true,
@@ -175,7 +173,7 @@ router.post('/forgot-password', [
 });
 
 // @route   POST /api/auth/verify-code
-// @desc    Verify reset code
+// @desc    Verify reset code and log user in directly
 router.post('/verify-code', [
     body('email').isEmail().withMessage('Please enter a valid email'),
     body('code').isLength({ min: 6, max: 6 }).withMessage('Code must be 6 digits')
@@ -188,14 +186,28 @@ router.post('/verify-code', [
         if (!resetEntry || resetEntry.expiresAt < Date.now()) {
             return res.status(400).json({
                 success: false,
-                message: 'Invalid or expired verification code'
+                message: 'invalid otp .try again'
             });
         }
 
-        res.status(200).json({
-            success: true,
-            message: 'Code verified successfully'
-        });
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+
+        // Delete reset entry
+        await PasswordReset.deleteOne({ _id: resetEntry._id });
+
+        // Reset login attempts
+        user.loginAttempts = 0;
+        user.lockUntil = undefined;
+        await user.save();
+
+        // Send token response to log user in directly
+        sendTokenResponse(user, 200, res);
     } catch (error) {
         console.error(error);
         res.status(500).json({

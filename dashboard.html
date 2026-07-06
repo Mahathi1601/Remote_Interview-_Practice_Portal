@@ -101,11 +101,11 @@ body{font-family:'Poppins',sans-serif;background:#F5F7FA;color:#1E293B;min-heigh
 /* VIDEO MODAL */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,.8);z-index:999;justify-content:center;align-items:center;}
 .modal-overlay.open{display:flex;}
-.modal-box{background:white;border:1px solid #E2E8F0;border-radius:16px;padding:24px;max-width:760px;width:92%;box-shadow:0 10px 25px rgba(0,0,0,0.1);}
+.modal-box{background:white;border:1px solid #E2E8F0;border-radius:16px;padding:24px;max-width:540px;width:92%;box-shadow:0 10px 25px rgba(0,0,0,0.1);max-height:92vh;display:flex;flex-direction:column;}
 .modal-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
 .modal-top h3{font-size:18px;font-weight:600;color:#1E293B;}
 .close-btn{background:none;border:none;color:#64748B;font-size:24px;cursor:pointer;}
-.modal-box video{width:100%;border-radius:10px;background:#000;}
+.modal-box video{width:100%;max-height:280px;border-radius:10px;background:#000;object-fit:contain;}
 
 /* LOADER */
 .loader{position:fixed;inset:0;background:white;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;}
@@ -131,6 +131,7 @@ body{font-family:'Poppins',sans-serif;background:#F5F7FA;color:#1E293B;min-heigh
 
 @media(max-width:1100px){.kpi-grid{grid-template-columns:repeat(3,1fr);}.charts-row{grid-template-columns:1fr;}.chart-card.wide{grid-column:span 1;}.bottom-row{grid-template-columns:1fr;}}
 @media(max-width:600px){.kpi-grid{grid-template-columns:1fr 1fr;}.navbar{flex-direction:column;gap:15px;}.nav-links{flex-wrap:wrap;justify-content:center;}}
+        .hidden { display: none !important; }
 </style>
 </head>
 <body>
@@ -154,9 +155,9 @@ body{font-family:'Poppins',sans-serif;background:#F5F7FA;color:#1E293B;min-heigh
     </div>
 
 <div class="page">
-  <div class="page-header">
-    <h1 id="welcomeMsg">Welcome Back!</h1>
-    <p>Your complete performance overview — practice scores, mock interview results &amp; confidence tracking.</p>
+  <div class="page-header" style="margin-bottom: 32px;">
+    <h1 id="welcomeMsg" style="font-size:28px; font-weight:700; color:#23465B; margin: 0;">Welcome Back!</h1>
+    <p style="color:#64748B; margin-top:4px; font-size:14px;">Your complete performance overview — practice scores, mock interview results &amp; confidence tracking.</p>
   </div>
 
   <!-- KPI CARDS -->
@@ -258,10 +259,29 @@ let allHistory = [];
 let charts = {};
 
 const TYPE_META = {
-  technical:      { emoji:'💻', cls:'tech',  label:'Technical' },
-  hr:             { emoji:'👔', cls:'hr',    label:'HR' },
-  behavioral:     { emoji:'🤝', cls:'beh',   label:'Behavioral' },
-  'system-design':{ emoji:'🏗️', cls:'sys',   label:'System Design' }
+  technical:                         { emoji:'💻', cls:'tech',  label:'Technical' },
+  hr:                                { emoji:'👔', cls:'hr',    label:'HR' },
+  behavioral:                        { emoji:'🤝', cls:'beh',   label:'Behavioral' },
+  'system-design':                   { emoji:'🏗️', cls:'sys',   label:'System Design' },
+  'frontend-development':            { emoji:'💻', cls:'tech',  label:'Frontend Development' },
+  'backend-development':             { emoji:'⚙️', cls:'sys',   label:'Backend Development' },
+  'devops-&-cloud':                  { emoji:'☁️', cls:'sys',   label:'DevOps & Cloud' },
+  'system-design-&-architecture':    { emoji:'🏗️', cls:'sys',   label:'System Design & Architecture' },
+  'data-science-&-ai/ml':            { emoji:'📈', cls:'tech',  label:'Data Science & AI/ML' },
+  'mobile-app-development':          { emoji:'📱', cls:'tech',  label:'Mobile App Development' },
+  'product-management':              { emoji:'📊', cls:'hr',    label:'Product Management' },
+  'hr-&-behavioral':                 { emoji:'🤝', cls:'beh',   label:'HR & Behavioral' },
+  'Frontend Development':            { emoji:'💻', cls:'tech',  label:'Frontend Development' },
+  'Backend Development':             { emoji:'⚙️', cls:'sys',   label:'Backend Development' },
+  'DevOps & Cloud Engineering':      { emoji:'☁️', cls:'sys',   label:'DevOps & Cloud Engineering' },
+  'System Design':                   { emoji:'🏛️', cls:'sys',   label:'System Design' },
+  'Data Science & Machine Learning': { emoji:'📊', cls:'tech',  label:'Data Science & Machine Learning' },
+  'Mobile App Development':          { emoji:'📱', cls:'tech',  label:'Mobile App Development' },
+  'Product Management & Strategy':   { emoji:'🎯', cls:'hr',    label:'Product Management & Strategy' },
+  'HR & Behavioral':                 { emoji:'👔', cls:'beh',   label:'HR & Behavioral' },
+  'DevOps & Cloud':                  { emoji:'☁️', cls:'sys',   label:'DevOps & Cloud' },
+  'Data Science & AI/ML':            { emoji:'📊', cls:'tech',  label:'Data Science & AI/ML' },
+  'Product Management':              { emoji:'🎯', cls:'hr',    label:'Product Management' }
 };
 
 async function load() {
@@ -334,7 +354,7 @@ function renderCharts(stats) {
     document.getElementById('pieChart').closest('.chart-card').innerHTML += '<div class="empty"><i class="fas fa-chart-pie"></i><p>No practice data yet</p></div>';
     return;
   }
-  const COLORS = ['#23465B', '#4A6B80', '#6F91A6', '#98B8CD', '#C1DFE4', '#E2E8F0'];
+  const COLORS = ['#23465B', '#2E5B75', '#3A6F8F', '#4584A8', '#5198C2', '#64AADB', '#7DBCEE', '#97CFFC', '#B1E1FF', '#CDEFFF', '#E6F7FF'];
   charts.pie = new Chart(document.getElementById('pieChart').getContext('2d'), {
     type: 'doughnut',
     data: {
@@ -389,7 +409,7 @@ function renderHistory(data) {
     const conf = s.confidenceScore || 0;
     const confColor = '#475569';
     const vidBadge = s.hasVideo
-      ? `<span class="badge badge-vid" onclick="playVideo('${s.videoUrl}','${meta.label} Recording')"><i class="fas fa-play"></i> Watch</span>`
+      ? `<span class="badge badge-vid" onclick="playVideo('${s.id}')"><i class="fas fa-play"></i> Watch</span>`
       : '';
     return `<div class="history-item">
       <div class="hist-type">${meta.emoji}</div>
@@ -432,17 +452,122 @@ function renderRecs(recs) {
   }).join('');
 }
 
-function playVideo(url, title) {
-  if (!url) { alert('No video recording available.'); return; }
-  document.getElementById('modalTitle').textContent = title;
-  document.getElementById('modalVideo').src = url;
-  document.getElementById('videoModal').classList.add('open');
+function playVideo(sessionId) {
+  const session = allHistory.find(s => s.id === sessionId);
+  if (!session) return;
+  
+  const modal = document.getElementById('videoModal');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalVideo = document.getElementById('modalVideo');
+  
+  modalTitle.textContent = `${TYPE_META[session.interviewType]?.label || session.interviewType} Interview Recordings`;
+  
+  const backendBase = API.replace('/api', '');
+  const getFullUrl = (url) => {
+    if (!url) return '';
+    return url.startsWith('http') ? url : (backendBase + url);
+  };
+  
+  // Display question-wise recordings list if present
+  let recordingsListDiv = document.getElementById('modalRecordingsList');
+  if (!recordingsListDiv) {
+    recordingsListDiv = document.createElement('div');
+    recordingsListDiv.id = 'modalRecordingsList';
+    recordingsListDiv.style.marginTop = '20px';
+    recordingsListDiv.style.maxHeight = '200px';
+    recordingsListDiv.style.overflowY = 'auto';
+    recordingsListDiv.style.padding = '12px';
+    recordingsListDiv.style.background = '#F8FAFC';
+    recordingsListDiv.style.borderRadius = '10px';
+    recordingsListDiv.style.border = '1px solid #E2E8F0';
+    modalVideo.parentNode.appendChild(recordingsListDiv);
+  }
+  
+  if (session.recordings && session.recordings.length > 0) {
+    recordingsListDiv.style.display = 'block';
+    recordingsListDiv.innerHTML = '<h4 style="margin-bottom:12px; font-size:13px; font-weight:600; color:#1E293B;"><i class="fa-solid fa-list-ol"></i> Recorded Question Responses:</h4>';
+    
+    session.recordings.forEach((rec, idx) => {
+      const item = document.createElement('div');
+      item.className = 'playlist-item';
+      item.style.display = 'flex';
+      item.style.justifyContent = 'space-between';
+      item.style.alignItems = 'center';
+      item.style.padding = '10px 12px';
+      item.style.marginBottom = '8px';
+      item.style.background = 'white';
+      item.style.borderRadius = '8px';
+      item.style.border = '1px solid #E2E8F0';
+      item.style.fontSize = '12px';
+      item.style.transition = 'all 0.2s';
+      
+      const qText = document.createElement('span');
+      qText.style.fontWeight = '500';
+      qText.style.color = '#334155';
+      qText.style.flex = '1';
+      qText.style.marginRight = '12px';
+      qText.textContent = `Q${idx + 1}: ${rec.questionText}`;
+      
+      const playBtn = document.createElement('button');
+      playBtn.innerHTML = '<i class="fas fa-play"></i> Play';
+      playBtn.style.background = '#23465B';
+      playBtn.style.color = 'white';
+      playBtn.style.border = 'none';
+      playBtn.style.padding = '5px 10px';
+      playBtn.style.borderRadius = '6px';
+      playBtn.style.cursor = 'pointer';
+      playBtn.style.fontSize = '11px';
+      playBtn.style.fontWeight = '600';
+      
+      playBtn.onclick = () => {
+        modalVideo.src = getFullUrl(rec.videoUrl);
+        modalVideo.play();
+        
+        // Highlight active question item
+        Array.from(recordingsListDiv.getElementsByClassName('playlist-item')).forEach(child => {
+          child.style.borderColor = '#E2E8F0';
+          child.style.background = 'white';
+        });
+        item.style.borderColor = '#23465B';
+        item.style.background = '#F0F9FF';
+      };
+      
+      item.appendChild(qText);
+      item.appendChild(playBtn);
+      recordingsListDiv.appendChild(item);
+    });
+    
+    // Automatically play the first recording
+    modalVideo.src = getFullUrl(session.recordings[0].videoUrl);
+    modalVideo.play();
+    
+    // Highlight the first playlist item
+    setTimeout(() => {
+      const firstItem = recordingsListDiv.querySelector('.playlist-item');
+      if (firstItem) {
+        firstItem.style.borderColor = '#23465B';
+        firstItem.style.background = '#F0F9FF';
+      }
+    }, 50);
+  } else if (session.videoUrl) {
+    // Fallback: hide custom playlist and play general session video directly
+    recordingsListDiv.style.display = 'none';
+    modalVideo.src = getFullUrl(session.videoUrl);
+    modalVideo.play();
+  } else {
+    alert('No video recordings found for this session.');
+    return;
+  }
+  
+  modal.classList.add('open');
 }
 
 function closeModal() {
   document.getElementById('videoModal').classList.remove('open');
   const v = document.getElementById('modalVideo');
   v.pause(); v.src = '';
+  const recordingsListDiv = document.getElementById('modalRecordingsList');
+  if (recordingsListDiv) recordingsListDiv.style.display = 'none';
 }
 
 document.getElementById('videoModal').addEventListener('click', function(e) {

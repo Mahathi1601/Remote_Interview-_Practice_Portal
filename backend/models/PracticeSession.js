@@ -9,6 +9,14 @@ const PracticeSessionSchema = new mongoose.Schema({
     questionId: {
         type: mongoose.Schema.ObjectId,
         ref: 'Question',
+        required: false
+    },
+    questionText: {
+        type: String,
+        required: true
+    },
+    idealAnswer: {
+        type: String,
         required: true
     },
     userAnswer: {

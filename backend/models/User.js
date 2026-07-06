@@ -35,7 +35,9 @@ const userSchema = new mongoose.Schema({
         targetRole: String,
         yearsOfExperience: Number,
         dateOfBirth: Date,
-        mobileNumber: String
+        mobileNumber: String,
+        linkedinProfile: String,
+        leetcodeProfile: String
     },
     createdAt: {
         type: Date,
