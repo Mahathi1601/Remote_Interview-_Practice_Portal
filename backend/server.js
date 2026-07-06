@@ -41,6 +41,11 @@ if (!fs.existsSync(externalUploadsDir)) {
 }
 app.use('/uploads', express.static(externalUploadsDir));
 
+// Redirect root path to login.html
+app.get('/', (req, res) => {
+    res.redirect('/login.html');
+});
+
 // Serve static frontend files
 app.use(express.static(path.join(__dirname, '../')));
 
