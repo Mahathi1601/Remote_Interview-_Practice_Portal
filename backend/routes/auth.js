@@ -157,11 +157,16 @@ router.post('/forgot-password', [
 
         // Send OTP email
         const { sendOTPEmail } = require('../utils/mailer');
-        await sendOTPEmail(email, code);
+        const emailSent = await sendOTPEmail(email, code);
+
+        let responseMessage = 'Verification code sent to your email!';
+        if (!emailSent) {
+            responseMessage = `Code generated (SMTP not configured or failed). Use this code for testing: ${code}`;
+        }
 
         res.status(200).json({
             success: true,
-            message: 'Reset code sent successfully'
+            message: responseMessage
         });
     } catch (error) {
         console.error(error);

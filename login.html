@@ -477,11 +477,11 @@ async function requestResetCode() {
         });
         const data = await response.json();
         if (data.success) {
-            alert('Verification code sent to your email! (Please check your mailbox or console logs)');
+            alert(data.message || 'Verification code sent successfully!');
             document.getElementById('forgotStep1').classList.add('hidden');
             document.getElementById('forgotStep2').classList.remove('hidden');
             document.getElementById('modalTitle').innerText = 'Verify Code';
-        } else { alert(data.message); }
+        } else { alert(data.message || 'Error requesting reset code'); }
     } catch (e) { alert('Error: ' + e.message); }
 }
 
