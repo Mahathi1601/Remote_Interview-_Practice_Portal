@@ -3,7 +3,7 @@ const nodemailer = require('nodemailer');
 const sendOTPEmail = async (email, otp) => {
     // Read SMTP settings
     const host = process.env.SMTP_HOST || 'smtp.gmail.com';
-    const port = parseInt(process.env.SMTP_PORT || '587');
+    const port = parseInt(process.env.SMTP_PORT || '465');
     const user = process.env.SMTP_USER;
     const pass = process.env.SMTP_PASS;
 
