@@ -1,4 +1,12 @@
 const nodemailer = require('nodemailer');
+const dns = require('dns');
+
+// Force Node.js to prefer IPv4 over IPv6 when resolving SMTP hosts.
+// Cloud networks (like Render) often do not support IPv6 outbound connections,
+// causing ENETUNREACH errors if Node tries connecting via IPv6 by default.
+if (dns.setDefaultResultOrder) {
+    dns.setDefaultResultOrder('ipv4first');
+}
 
 const sendOTPEmail = async (email, otp) => {
     // Read SMTP settings
