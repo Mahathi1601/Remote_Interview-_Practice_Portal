@@ -32,7 +32,10 @@ const sendOTPEmail = async (email, otp) => {
             auth: {
                 user,
                 pass
-            }
+            },
+            connectionTimeout: 5000, // 5 seconds connection timeout
+            greetingTimeout: 5000,   // 5 seconds greeting timeout
+            socketTimeout: 10000     // 10 seconds socket timeout
         });
 
         const mailOptions = {
