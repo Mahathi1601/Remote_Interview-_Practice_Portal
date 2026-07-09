@@ -55,6 +55,40 @@ const sendOTPEmail = async (email, otp) => {
         }
     }
 
+    // 🌟 Brevo HTTP API Mode (Recommended for Render Free tier - allows sending to any recipient without domain verification!)
+    if (process.env.BREVO_API_KEY) {
+        try {
+            console.log('Sending OTP email via Brevo HTTP API...');
+            const senderEmail = process.env.SMTP_USER || 'mahasabbani16@gmail.com'; // Uses your verified Brevo email
+            const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+                method: 'POST',
+                headers: {
+                    'api-key': process.env.BREVO_API_KEY,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    sender: { name: 'Interview Practice Portal', email: senderEmail },
+                    to: [{ email: email }],
+                    subject: 'Verification Code - Forgot Password',
+                    htmlContent: htmlContent
+                })
+            });
+
+            const data = await response.json();
+            if (response.ok && (data.messageId || response.status === 201 || response.status === 202)) {
+                console.log(`✅ Real OTP email sent successfully via Brevo API to ${email}`);
+                return { success: true };
+            } else {
+                console.error('❌ Brevo API error response:', data);
+                throw new Error(data.message || 'Brevo API error');
+            }
+        } catch (error) {
+            console.error('❌ Error sending real email via Brevo API:', error.message);
+            return { success: false, error: `Brevo API failed: ${error.message}` };
+        }
+    }
+
     // --- Fallback to SMTP Mode (Works locally or on paid Render servers) ---
     let host = process.env.SMTP_HOST || 'smtp.gmail.com';
     if (host === 'smtp.gmail.com') {

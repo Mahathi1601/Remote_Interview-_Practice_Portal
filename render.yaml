@@ -23,3 +23,5 @@ services:
         sync: false # User will input their Gmail account in Render dashboard
       - key: SMTP_PASS
         sync: false # User will input their Gmail App Password in Render dashboard
+      - key: BREVO_API_KEY
+        sync: false # User will input their Brevo API Key in Render dashboard
