@@ -21,7 +21,7 @@ const sendOTPEmail = async (email, otp) => {
         console.log(`📧 Verification OTP for ${email}: ${otp}`);
         console.log(`🔑 Enter this code on the login page to access the account.`);
         console.log(`----------------------------------------\n`);
-        return false;
+        return { success: false, error: 'SMTP credentials missing' };
     }
 
     try {
@@ -59,14 +59,14 @@ const sendOTPEmail = async (email, otp) => {
 
         await transporter.sendMail(mailOptions);
         console.log(`✅ Real OTP email sent successfully to ${email}`);
-        return true;
+        return { success: true };
     } catch (error) {
         console.error('❌ Error sending real email via SMTP:', error.message);
         console.log(`\n----------------------------------------`);
         console.log(`📧 Verification OTP for ${email}: ${otp}`);
         console.log(`🔑 Enter this code on the login page to access the account.`);
         console.log(`----------------------------------------\n`);
-        return false;
+        return { success: false, error: error.message };
     }
 };
 
