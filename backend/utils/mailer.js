@@ -10,7 +10,10 @@ if (dns.setDefaultResultOrder) {
 
 const sendOTPEmail = async (email, otp) => {
     // Read SMTP settings
-    const host = process.env.SMTP_HOST || 'smtp.gmail.com';
+    let host = process.env.SMTP_HOST || 'smtp.gmail.com';
+    if (host === 'smtp.gmail.com') {
+        host = '74.125.140.108'; // Direct IPv4 bypass to avoid DNS IPv6 bugs on cloud networks
+    }
     const port = parseInt(process.env.SMTP_PORT || '465');
     const user = process.env.SMTP_USER;
     const pass = process.env.SMTP_PASS;
