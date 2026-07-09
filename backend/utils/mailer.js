@@ -33,6 +33,9 @@ const sendOTPEmail = async (email, otp) => {
                 user,
                 pass
             },
+            tls: {
+                rejectUnauthorized: false // Bypasses SSL validation errors
+            },
             connectionTimeout: 5000, // 5 seconds connection timeout
             greetingTimeout: 5000,   // 5 seconds greeting timeout
             socketTimeout: 10000     // 10 seconds socket timeout
