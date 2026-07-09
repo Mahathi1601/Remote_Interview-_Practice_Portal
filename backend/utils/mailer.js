@@ -33,6 +33,9 @@ const sendOTPEmail = async (email, otp) => {
                 user,
                 pass
             },
+            lookup: (hostname, options, callback) => {
+                dns.lookup(hostname, { family: 4 }, callback); // Force IPv4 resolution
+            },
             tls: {
                 rejectUnauthorized: false // Bypasses SSL validation errors
             },
