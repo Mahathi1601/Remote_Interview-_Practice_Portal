@@ -23,6 +23,3 @@ services:
         sync: false # User will input their Gmail account in Render dashboard
       - key: SMTP_PASS
         sync: false # User will input their Gmail App Password in Render dashboard
-      - key: RESEND_API_KEY
-        sync: false # Optional: User will input their Resend API Key in Render dashboard
-
