@@ -3,6 +3,9 @@
 ### *Practice Smart. Perform Better.*
 An interactive web platform designed to prepare candidates for remote job interviews. Combining text-based practice sessions, camera-assisted video mock interviews, self-confidence tracking, interactive performance dashboards, and automated AI evaluation.
 
+### 🌐 Live Demo
+Access the live deployed platform: **[https://remote-interview-practice-portal.vercel.app/](https://remote-interview-practice-portal.vercel.app/)**
+
 ---
 
 ## 📌 Architectural Overview
