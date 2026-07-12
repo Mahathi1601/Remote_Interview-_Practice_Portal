@@ -12,7 +12,22 @@ const path = require('path');
 // Load env vars
 dotenv.config({ path: path.join(__dirname, '.env') });
 
+const mongoose = require('mongoose');
+
 const app = express();
+
+// Database connection middleware for Serverless compatibility (Vercel)
+app.use(async (req, res, next) => {
+    if (mongoose.connection.readyState === 0) {
+        try {
+            await connectDB();
+        } catch (err) {
+            console.error('Database connection error in middleware:', err.message);
+            return res.status(500).json({ success: false, message: 'Database connection failed' });
+        }
+    }
+    next();
+});
 
 // Body parser
 app.use(express.json());
