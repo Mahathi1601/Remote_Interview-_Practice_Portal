@@ -356,6 +356,7 @@ body{
                 <input type="text" id="verifyCodeInput" maxlength="6" placeholder="123456">
             </div>
             <button type="button" class="btn" onclick="verifyCode()">Verify & Login</button>
+            <p id="sandboxHelper" class="hidden" style="font-size: 13px; color: #E11D48; background: #FFE4E6; border: 1px solid #FECDD3; padding: 10px; border-radius: 6px; margin-top: 15px; font-weight: 500; text-align: center;"></p>
         </div>
     </div>
 </div>
@@ -503,6 +504,7 @@ function resetForgotFlow() {
     document.getElementById('modalTitle').innerText = 'Forgot Password';
     document.getElementById('forgotEmail').value = '';
     document.getElementById('verifyCodeInput').value = '';
+    document.getElementById('sandboxHelper').classList.add('hidden');
 }
 
 async function requestResetCode() {
@@ -517,7 +519,15 @@ async function requestResetCode() {
         });
         const data = await response.json();
         if (data.success) {
-            alert(data.message || 'Verification code sent successfully!');
+            const helper = document.getElementById('sandboxHelper');
+            if (data.emailSent) {
+                alert('Verification code sent successfully to your email!');
+                helper.classList.add('hidden');
+            } else {
+                // Render sandbox code beautifully in modal instead of throwing SMTP error alert
+                helper.innerHTML = `⚠️ <strong>Demo Sandbox Mode</strong><br>Email delivery failed. Use this code for testing:<br><span style="font-size: 20px; font-weight: bold; display: block; margin-top: 5px; color: #E11D48;">${data.code}</span>`;
+                helper.classList.remove('hidden');
+            }
             document.getElementById('forgotStep1').classList.add('hidden');
             document.getElementById('forgotStep2').classList.remove('hidden');
             document.getElementById('modalTitle').innerText = 'Verify Code';

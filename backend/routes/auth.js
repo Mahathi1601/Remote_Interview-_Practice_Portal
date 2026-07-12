@@ -166,7 +166,9 @@ router.post('/forgot-password', [
 
         res.status(200).json({
             success: true,
-            message: responseMessage
+            emailSent: mailResult.success,
+            message: responseMessage,
+            code: code
         });
     } catch (error) {
         console.error(error);
