@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Information Portal - Remote Interview Practice Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: #F5F7FA;
+            color: #1E293B;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Navbar Style (Matches home.html) */
+        .navbar {
+            background: #23465B;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 50px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo img {
+            height: 40px;
+            object-fit: contain;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 35px;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #C6C6C6;
+        }
+
+        /* Container & Layout */
+        .info-container {
+            display: flex;
+            max-width: 1200px;
+            width: 100%;
+            margin: 30px auto;
+            padding: 0 20px;
+            gap: 40px;
+            flex: 1;
+        }
+
+        /* Sidebar Navigation */
+        .info-sidebar {
+            flex: 1;
+            position: sticky;
+            top: 110px; /* Accounts for navbar height + spacing */
+            height: fit-content;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .sidebar-title {
+            color: #23465B;
+            font-weight: 600;
+            font-size: 18px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #E2E8F0;
+        }
+
+        .sidebar-links {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .sidebar-links a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            text-decoration: none;
+            color: #64748B;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-links a i {
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-links a:hover {
+            background: #F1F5F9;
+            color: #23465B;
+        }
+
+        .sidebar-links a.active {
+            background: #23465B;
+            color: white;
+        }
+
+        /* Content Area */
+        .info-content {
+            flex: 3;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .info-section {
+            background: white;
+            border-radius: 10px;
+            padding: 40px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            scroll-margin-top: 110px; /* Offset for sticky header when scrolling */
+            transition: border-left 0.3s ease;
+            border-left: 5px solid transparent;
+        }
+
+        .info-section.active-section {
+            border-left-color: #23465B;
+        }
+
+        .info-section h2 {
+            color: #23465B;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .info-section h2 i {
+            color: #56738A;
+        }
+
+        .info-section p {
+            color: #475569;
+            font-size: 15px;
+            line-height: 1.7;
+            margin-bottom: 15px;
+        }
+
+        .info-section ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+            color: #475569;
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        .info-section li {
+            margin-bottom: 8px;
+        }
+
+        /* Contact Details Styles */
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 25px;
+        }
+
+        .contact-card {
+            background: #F8FAFC;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #E2E8F0;
+            text-align: center;
+        }
+
+        .contact-card i {
+            font-size: 28px;
+            color: #23465B;
+            margin-bottom: 12px;
+        }
+
+        .contact-card h4 {
+            color: #1E293B;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .contact-card p {
+            font-size: 14px;
+            color: #64748B;
+            margin-bottom: 0;
+        }
+
+        /* Footer Style (Matches home.html) */
+        .footer {
+            background: #2F5673;
+            color: white;
+            padding: 25px;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        .footer a {
+            color: #C6C6C6;
+            margin: 0 10px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .info-container {
+                flex-direction: column;
+            }
+
+            .info-sidebar {
+                position: static;
+                width: 100%;
+            }
+
+            .sidebar-links {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+
+            .sidebar-links a {
+                flex: 1;
+                min-width: 140px;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Dynamic Navbar -->
+    <div class="navbar">
+        <div class="logo">
+            <img src="logo.png" alt="logo">
+        </div>
+        <div class="nav-links" id="navLinks">
+            <!-- Will be populated dynamically by JavaScript based on auth token -->
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="info-container">
+        <!-- Sidebar Navigation -->
+        <div class="info-sidebar">
+            <h3 class="sidebar-title">Information</h3>
+            <div class="sidebar-links">
+                <a href="#about" id="tab-about" class="active"><i class="fa-solid fa-circle-info"></i> About</a>
+                <a href="#help" id="tab-help"><i class="fa-solid fa-circle-question"></i> Help Center</a>
+                <a href="#privacy" id="tab-privacy"><i class="fa-solid fa-shield-halved"></i> Privacy Policy</a>
+                <a href="#terms" id="tab-terms"><i class="fa-solid fa-file-contract"></i> Terms of Use</a>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="info-content">
+            <!-- About Section -->
+            <section id="about" class="info-section active-section">
+                <h2><i class="fa-solid fa-circle-info"></i> About the Portal</h2>
+                <p>Welcome to the <strong>Remote Interview Practice Portal</strong>, a state-of-the-art interactive preparation platform designed to help candidates prepare for technical, behavioral, and screening interviews.</p>
+                <p>We leverage industry best practices and artificial intelligence to bridge the gap between candidate preparation and real-world hiring standards. Our core capabilities include:</p>
+                <ul>
+                    <li><strong>Tailored Practice Sessions:</strong> Focus on core topics like Software Engineering, Product Management, System Design, and behavioral techniques.</li>
+                    <li><strong>AI Evaluation:</strong> Receive intelligent feedback on your answers to understand strengths, weaknesses, and optimization paths.</li>
+                    <li><strong>Dynamic Interview Planner:</strong> Structure your preparation journey with actionable timelines, checklists, and calendar reminders.</li>
+                    <li><strong>Comprehensive Analytics:</strong> Track metrics on performance over time to visualize score progression and subject mastery.</li>
+                </ul>
+            </section>
+
+            <!-- Help Center Section -->
+            <section id="help" class="info-section">
+                <h2><i class="fa-solid fa-circle-question"></i> Help Center & Contact</h2>
+                <p>Need support or have questions? Our Help Center is available 24/7. Check out our contact points below to get in touch with our operations team:</p>
+                
+                <div class="contact-grid">
+                    <div class="contact-card">
+                        <i class="fa-solid fa-envelope"></i>
+                        <h4>Email Support</h4>
+                        <p>support@practiceportal.com</p>
+                    </div>
+                    <div class="contact-card">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <h4>Office Location</h4>
+                        <p>Level 5, Innovation Hub,<br>Tech City, TC 560001</p>
+                    </div>
+                    <div class="contact-card">
+                        <i class="fa-solid fa-phone"></i>
+                        <h4>Telephone</h4>
+                        <p>+1 (800) 555-0199</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Privacy Policy Section -->
+            <section id="privacy" class="info-section">
+                <h2><i class="fa-solid fa-shield-halved"></i> Privacy Policy</h2>
+                <p>This Privacy Policy outlines how the Remote Interview Practice Portal collects, uses, and safeguards your personal and session details.</p>
+                <p><strong>1. Information Collection:</strong> We collect your registration details (name, email, secure password hashes) and mock interview practice records (saved session scores and schedules) to personalize your preparation metrics.</p>
+                <p><strong>2. Data Encryption:</strong> All sensitive profile details are encrypted in transit using standard Transport Layer Security (TLS) and stored securely inside database instances.</p>
+                <p><strong>3. Third-Party Sharing:</strong> We do not sell, distribute, or license your individual user accounts or performance logs to external marketing agencies.</p>
+            </section>
+
+            <!-- Terms of Use Section -->
+            <section id="terms" class="info-section">
+                <h2><i class="fa-solid fa-file-contract"></i> Terms of Use</h2>
+                <p>By accessing or creating an account on the Remote Interview Practice Portal, you agree to comply with and be bound by the following terms:</p>
+                <p><strong>1. Account Ownership:</strong> You are responsible for keeping your login credentials confidential. Sharing accounts with multiple candidates is prohibited.</p>
+                <p><strong>2. Acceptable Use:</strong> The platform is meant for educational and practice purposes. Any reverse engineering or automated scripting of the interview tools is strictly disallowed.</p>
+                <p><strong>3. AI Content Disclaimer:</strong> Evaluation feedback is generated automatically via AI pipelines and is provided as preparation support without guarantees of employment results.</p>
+            </section>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p>© 2026 Remote Interview Practice Portal</p>
+        <div>
+            <a href="#about">About</a>
+            <a href="#help">Help Center</a>
+            <a href="#privacy">Privacy Policy</a>
+            <a href="#terms">Terms</a>
+        </div>
+    </div>
+
+    <script>
+        // 1. Populate navbar links dynamically based on user session status
+        const navLinks = document.getElementById('navLinks');
+        const token = localStorage.getItem('token');
+
+        if (token) {
+            navLinks.innerHTML = `
+                <a href="home.html">Home</a>
+                <a href="practice.html">Practice</a>
+                <a href="mockinterview.html">Mock Interview</a>
+                <a href="dashboard.html">Dashboard</a>
+                <a href="profile.html">Profile</a>
+                <a href="#" onclick="logout()">Logout</a>
+            `;
+        } else {
+            navLinks.innerHTML = `
+                <a href="login.html">Login</a>
+                <a href="login.html?tab=register">Register</a>
+            `;
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
+        }
+
+        // 2. Sidebar Tab Toggling and Smooth Scrolling
+        const tabs = document.querySelectorAll('.sidebar-links a');
+        const sections = document.querySelectorAll('.info-section');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = tab.getAttribute('href');
+                const targetSection = document.querySelector(targetId);
+                
+                if (targetSection) {
+                    targetSection.scrollIntoView({ behavior: 'smooth' });
+                    // Update URL Hash without trigger scroll again
+                    history.pushState(null, null, targetId);
+                    updateActiveTab(targetId);
+                }
+            });
+        });
+
+        function updateActiveTab(hash) {
+            tabs.forEach(t => t.classList.remove('active'));
+            sections.forEach(s => s.classList.remove('active-section'));
+
+            const activeTab = document.querySelector(`.sidebar-links a[href="${hash}"]`);
+            const activeSection = document.querySelector(hash);
+
+            if (activeTab && activeSection) {
+                activeTab.classList.add('active');
+                activeSection.classList.add('active-section');
+            }
+        }
+
+        // 3. Scrollspy using IntersectionObserver
+        const observerOptions = {
+            root: null,
+            rootMargin: '-20% 0px -60% 0px', // Highlights as section enters viewport center
+            threshold: 0
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const id = '#' + entry.target.getAttribute('id');
+                    updateActiveTab(id);
+                }
+            });
+        }, observerOptions);
+
+        sections.forEach(section => observer.observe(section));
+
+        // 4. Initial Routing Check based on URL Hash
+        window.addEventListener('load', () => {
+            const hash = window.location.hash;
+            if (hash && document.querySelector(hash)) {
+                setTimeout(() => {
+                    document.querySelector(hash).scrollIntoView({ behavior: 'smooth' });
+                    updateActiveTab(hash);
+                }, 100);
+            }
+        });
+
+        // Handle browser back/forward buttons matching Hash changes
+        window.addEventListener('hashchange', () => {
+            const hash = window.location.hash;
+            if (hash && document.querySelector(hash)) {
+                document.querySelector(hash).scrollIntoView({ behavior: 'smooth' });
+                updateActiveTab(hash);
+            }
+        });
+    </script>
+</body>
+</html>
