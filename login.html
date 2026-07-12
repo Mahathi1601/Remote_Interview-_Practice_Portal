@@ -525,7 +525,12 @@ async function requestResetCode() {
                 helper.classList.add('hidden');
             } else {
                 // Render sandbox code beautifully in modal instead of throwing SMTP error alert
-                helper.innerHTML = `⚠️ <strong>Demo Sandbox Mode</strong><br>Email delivery failed. Use this code for testing:<br><span style="font-size: 20px; font-weight: bold; display: block; margin-top: 5px; color: #E11D48;">${data.code}</span>`;
+                let displayCode = data.code;
+                if (!displayCode && data.message) {
+                    const match = data.message.match(/testing:\s*(\d+)/i);
+                    if (match) displayCode = match[1];
+                }
+                helper.innerHTML = `⚠️ <strong>Demo Sandbox Mode</strong><br>Email delivery failed. Use this code for testing:<br><span style="font-size: 20px; font-weight: bold; display: block; margin-top: 5px; color: #E11D48;">${displayCode || 'Error generating code'}</span>`;
                 helper.classList.remove('hidden');
             }
             document.getElementById('forgotStep1').classList.add('hidden');
